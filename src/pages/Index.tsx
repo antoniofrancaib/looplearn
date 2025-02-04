@@ -28,7 +28,7 @@ const Index = () => {
         <DialogTrigger asChild>
           <Button 
             size="lg" 
-            className="group animate-fade-in [animation-delay:400ms] text-lg"
+            className="group mt-8 animate-fade-in [animation-delay:400ms] text-lg"
           >
             Get Started
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -83,18 +83,18 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="mt-24 flex flex-col md:flex-row gap-12 items-center justify-center text-gray-600 animate-fade-in [animation-delay:600ms]">
-        <div className="flex flex-col items-center">
-          <h2 className="text-xl font-bold">Feature Highlights</h2>
-          <p className="text-sm">Discover the best ways to learn.</p>
+      <div className="mt-24 grid grid-cols-1 gap-12 md:grid-cols-3 animate-fade-in [animation-delay:600ms]">
+        <div className="flex flex-col items-center space-y-2">
+          <h2 className="text-xl font-bold text-gray-900">Simple</h2>
+          <p className="text-gray-600">Create flashcards in seconds</p>
         </div>
-        <div className="flex flex-col items-center">
-          <h2 className="text-xl font-bold">Track Your Progress</h2>
-          <p className="text-sm">Stay motivated with your learning journey.</p>
+        <div className="flex flex-col items-center space-y-2">
+          <h2 className="text-xl font-bold text-gray-900">Smart</h2>
+          <p className="text-gray-600">Learn at the perfect pace</p>
         </div>
-        <div className="flex flex-col items-center">
-          <h2 className="text-xl font-bold">Join a Community</h2>
-          <p className="text-sm">Connect with others and share knowledge.</p>
+        <div className="flex flex-col items-center space-y-2">
+          <h2 className="text-xl font-bold text-gray-900">Scientific</h2>
+          <p className="text-gray-600">Based on proven methods</p>
         </div>
       </div>
     </div>
