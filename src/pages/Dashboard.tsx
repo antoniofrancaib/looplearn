@@ -3,9 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Plus, BookOpen, BarChart2, Calendar } from "lucide-react";
 import { useState } from "react";
+import { ProfileMenu } from "@/components/ProfileMenu";
+import { NewDeckDialog } from "@/components/NewDeckDialog";
 
 const Dashboard = () => {
   const [progress] = useState(67);
+  const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white p-8">
@@ -16,10 +19,13 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
             <p className="text-muted-foreground">Track your learning progress and create new flashcards.</p>
           </div>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            New Deck
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button onClick={() => setNewDeckDialogOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              New Deck
+            </Button>
+            <ProfileMenu />
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -80,6 +86,11 @@ const Dashboard = () => {
             ))}
           </div>
         </div>
+
+        <NewDeckDialog 
+          open={newDeckDialogOpen} 
+          onOpenChange={setNewDeckDialogOpen}
+        />
       </div>
     </div>
   );
