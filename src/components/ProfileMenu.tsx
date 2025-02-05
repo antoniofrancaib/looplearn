@@ -22,7 +22,7 @@ import {
 
 export function ProfileMenu() {
   return (
-    <div className="relative">
+    <div className="relative" style={{ zIndex: 50 }}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
@@ -39,7 +39,13 @@ export function ProfileMenu() {
           className="w-72 p-3" 
           align="end"
           sideOffset={8}
-          style={{ zIndex: 1000 }}
+          forceMount
+          style={{
+            zIndex: 50,
+            backgroundColor: 'white',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            border: '1px solid #e5e7eb'
+          }}
         >
           <div className="flex items-center gap-3 pb-3">
             <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center">
