@@ -9,7 +9,106 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      cards: {
+        Row: {
+          back_content: string
+          created_at: string | null
+          deck_id: string
+          ease_factor: number | null
+          front_content: string
+          id: string
+          interval_days: number | null
+          last_reviewed_at: string | null
+          next_review_at: string | null
+          review_count: number | null
+        }
+        Insert: {
+          back_content: string
+          created_at?: string | null
+          deck_id: string
+          ease_factor?: number | null
+          front_content: string
+          id?: string
+          interval_days?: number | null
+          last_reviewed_at?: string | null
+          next_review_at?: string | null
+          review_count?: number | null
+        }
+        Update: {
+          back_content?: string
+          created_at?: string | null
+          deck_id?: string
+          ease_factor?: number | null
+          front_content?: string
+          id?: string
+          interval_days?: number | null
+          last_reviewed_at?: string | null
+          next_review_at?: string | null
+          review_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
