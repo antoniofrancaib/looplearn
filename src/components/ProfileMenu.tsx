@@ -19,8 +19,11 @@ import {
   LogOut,
   Lock
 } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
 
 export function ProfileMenu() {
+  const navigate = useNavigate();
+
   return (
     <div className="relative" style={{ zIndex: 50 }}>
       <DropdownMenu>
@@ -58,11 +61,17 @@ export function ProfileMenu() {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuGroup className="space-y-1 p-1">
-            <DropdownMenuItem className="flex cursor-pointer items-center gap-2 rounded-md p-2">
+            <DropdownMenuItem 
+              className="flex cursor-pointer items-center gap-2 rounded-md p-2"
+              onClick={() => navigate('/dashboard')}
+            >
               <Home className="h-4 w-4 text-muted-foreground" />
               <span>Home</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex cursor-pointer items-center gap-2 rounded-md p-2">
+            <DropdownMenuItem 
+              className="flex cursor-pointer items-center gap-2 rounded-md p-2"
+              onClick={() => navigate('/personal-info')}
+            >
               <UserCog className="h-4 w-4 text-muted-foreground" />
               <span>Personal Info</span>
             </DropdownMenuItem>
