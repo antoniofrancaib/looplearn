@@ -87,7 +87,10 @@ export function ProfileMenu() {
               <Share2 className="h-4 w-4 text-muted-foreground" />
               <span>Sharing</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex cursor-pointer items-center gap-2 rounded-md p-2">
+            <DropdownMenuItem 
+              className="flex cursor-pointer items-center gap-2 rounded-md p-2"
+              onClick={() => navigate('/billing')}
+            >
               <CreditCard className="h-4 w-4 text-muted-foreground" />
               <span>Billing</span>
             </DropdownMenuItem>

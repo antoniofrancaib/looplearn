@@ -91,6 +91,44 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          currency: string
+          description: string | null
+          id: string
+          payment_date: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          currency?: string
+          description?: string | null
+          id?: string
+          payment_date?: string | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          currency?: string
+          description?: string | null
+          id?: string
+          payment_date?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -123,6 +161,47 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          id: string
+          plan_name: string
+          status: string
+          user_id: string
+          valid_until: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          id?: string
+          plan_name: string
+          status: string
+          user_id: string
+          valid_until: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          id?: string
+          plan_name?: string
+          status?: string
+          user_id?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
