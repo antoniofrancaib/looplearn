@@ -20,6 +20,7 @@ serve(async (req) => {
 
   try {
     const { title, description } = await req.json()
+    console.log('Generating flashcards for:', title, description) // Added logging
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -28,7 +29,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o-mini', // Fixed model name
         messages: [
           {
             role: 'system',
@@ -43,6 +44,8 @@ serve(async (req) => {
     })
 
     const data = await response.json()
+    console.log('OpenAI response:', data) // Added logging
+
     const content = data.choices[0].message.content
 
     // Parse the JSON content from the response
