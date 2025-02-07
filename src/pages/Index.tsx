@@ -8,6 +8,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Header with Logo */}
+      <div className="absolute left-8 top-8 flex items-center space-x-2">
+        <img
+          src="/lovable-uploads/a78ccfa1-5fec-4ac7-91c3-51577d9d5c54.png"
+          alt="LoopLearn Logo"
+          className="h-10 w-10"
+        />
+        <span className="text-2xl font-bold text-gray-900">LoopLearn</span>
+      </div>
+
       {/* Hero Section */}
       <div className="flex flex-col items-center justify-center px-8 pt-20 text-center">
         <h1 className="animate-fade-in bg-gradient-to-r from-primary to-secondary bg-clip-text text-6xl font-bold text-transparent sm:text-7xl">
