@@ -19,18 +19,32 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <motion.div
-        className="cursor-pointer perspective-1000"
-        onClick={handleFlip}
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Card className="w-full min-h-[200px] p-6 shadow-lg">
-          <div className="text-center text-xl">
-            {isFlipped ? back : front}
-          </div>
-        </Card>
-      </motion.div>
+      <div className="relative" style={{ perspective: "1000px" }}>
+        <motion.div
+          className="w-full cursor-pointer"
+          onClick={handleFlip}
+          animate={{ rotateY: isFlipped ? 180 : 0 }}
+          transition={{ duration: 0.6 }}
+          style={{ 
+            transformStyle: "preserve-3d",
+          }}
+        >
+          <Card className={`w-full min-h-[200px] p-6 shadow-lg absolute backface-hidden ${!isFlipped ? 'visible' : 'invisible'}`}>
+            <div className="text-center text-xl">
+              {front}
+            </div>
+          </Card>
+
+          <Card className={`w-full min-h-[200px] p-6 shadow-lg absolute backface-hidden ${isFlipped ? 'visible' : 'invisible'}`}
+               style={{ 
+                 transform: "rotateY(180deg)",
+               }}>
+            <div className="text-center text-xl">
+              {back}
+            </div>
+          </Card>
+        </motion.div>
+      </div>
 
       <div className="mt-6 flex justify-center space-x-4">
         <Button
