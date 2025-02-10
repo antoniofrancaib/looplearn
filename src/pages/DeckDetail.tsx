@@ -1,6 +1,6 @@
 
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Flashcard } from "@/components/Flashcard";
 import { useState } from "react";
@@ -8,17 +8,25 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { addDays } from "date-fns";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Card {
   id: string;
   front_content: string;
   back_content: string;
+  next_review_at: string;
+  interval_days: number;
+  ease_factor: number;
+  review_count: number;
 }
 
 const DeckDetail = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: deck, isLoading: isDeckLoading } = useQuery({
     queryKey: ['deck', deckId],
@@ -41,20 +49,52 @@ const DeckDetail = () => {
         .from('cards')
         .select('*')
         .eq('deck_id', deckId)
-        .order('created_at');
+        .order('next_review_at');
       
       if (error) throw error;
       return data as Card[];
     },
   });
 
-  const handleCardResult = (correct: boolean) => {
-    // Here you can implement spaced repetition logic
-    setTimeout(() => {
+  const updateCardMutation = useMutation({
+    mutationFn: async ({ cardId, difficulty }: { cardId: string, difficulty: 'forgot' | 'struggled' | 'easy' }) => {
+      const intervalDays = {
+        forgot: 1,
+        struggled: 2,
+        easy: 5
+      }[difficulty];
+
+      const nextReviewAt = addDays(new Date(), intervalDays);
+
+      const { error } = await supabase
+        .from('cards')
+        .update({
+          next_review_at: nextReviewAt.toISOString(),
+          interval_days: intervalDays,
+          last_reviewed_at: new Date().toISOString(),
+          review_count: cards![currentCardIndex].review_count + 1
+        })
+        .eq('id', cardId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cards', deckId] });
       if (cards && currentCardIndex < cards.length - 1) {
         setCurrentCardIndex(prev => prev + 1);
+      } else {
+        toast({
+          title: "Review Complete!",
+          description: "You've reviewed all cards in this deck.",
+        });
       }
-    }, 1000);
+    },
+  });
+
+  const handleDifficultySelect = (difficulty: 'forgot' | 'struggled' | 'easy') => {
+    if (!cards) return;
+    const currentCard = cards[currentCardIndex];
+    updateCardMutation.mutate({ cardId: currentCard.id, difficulty });
   };
 
   if (isDeckLoading || isCardsLoading) {
@@ -92,7 +132,7 @@ const DeckDetail = () => {
           <Flashcard
             front={cards[currentCardIndex].front_content}
             back={cards[currentCardIndex].back_content}
-            onResult={handleCardResult}
+            onDifficultySelect={handleDifficultySelect}
           />
         </div>
       ) : (

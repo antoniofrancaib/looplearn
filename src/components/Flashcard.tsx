@@ -1,28 +1,20 @@
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, X } from "lucide-react";
 
 interface FlashcardProps {
   front: string;
   back: string;
-  onResult: (correct: boolean) => void;
+  onDifficultySelect: (difficulty: 'forgot' | 'struggled' | 'easy') => void;
 }
 
-export const Flashcard = ({ front, back, onResult }: FlashcardProps) => {
+export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isAnswered, setIsAnswered] = useState(false);
 
   const handleFlip = () => {
-    if (!isAnswered) {
-      setIsFlipped(!isFlipped);
-    }
-  };
-
-  const handleAnswer = (correct: boolean) => {
-    setIsAnswered(true);
-    onResult(correct);
+    setIsFlipped(!isFlipped);
   };
 
   return (
@@ -42,21 +34,25 @@ export const Flashcard = ({ front, back, onResult }: FlashcardProps) => {
 
       <div className="mt-6 flex justify-center space-x-4">
         <Button
-          variant="outline"
-          className="bg-red-50 hover:bg-red-100"
-          onClick={() => handleAnswer(false)}
-          disabled={!isFlipped || isAnswered}
+          variant="destructive"
+          onClick={() => onDifficultySelect('forgot')}
+          disabled={!isFlipped}
         >
-          <X className="mr-2 h-4 w-4" />
-          Incorrect
+          Forgot (1 day)
         </Button>
         <Button
-          className="bg-success hover:bg-success/90"
-          onClick={() => handleAnswer(true)}
-          disabled={!isFlipped || isAnswered}
+          variant="outline"
+          onClick={() => onDifficultySelect('struggled')}
+          disabled={!isFlipped}
         >
-          <Check className="mr-2 h-4 w-4" />
-          Correct
+          Struggled (2 days)
+        </Button>
+        <Button
+          className="bg-green-600 hover:bg-green-700"
+          onClick={() => onDifficultySelect('easy')}
+          disabled={!isFlipped}
+        >
+          Easy (5 days)
         </Button>
       </div>
     </div>
