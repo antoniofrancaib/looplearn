@@ -19,9 +19,9 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <div className="relative" style={{ perspective: "1000px" }}>
+      <div className="relative h-[200px] mb-8" style={{ perspective: "1000px" }}>
         <motion.div
-          className="w-full cursor-pointer"
+          className="w-full h-full cursor-pointer absolute"
           onClick={handleFlip}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6 }}
@@ -29,13 +29,13 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
             transformStyle: "preserve-3d",
           }}
         >
-          <Card className={`w-full min-h-[200px] p-6 shadow-lg absolute backface-hidden ${!isFlipped ? 'visible' : 'invisible'}`}>
+          <Card className={`w-full h-full p-6 shadow-lg absolute backface-hidden ${!isFlipped ? 'visible' : 'invisible'}`}>
             <div className="text-center text-xl">
               {front}
             </div>
           </Card>
 
-          <Card className={`w-full min-h-[200px] p-6 shadow-lg absolute backface-hidden ${isFlipped ? 'visible' : 'invisible'}`}
+          <Card className={`w-full h-full p-6 shadow-lg absolute backface-hidden ${isFlipped ? 'visible' : 'invisible'}`}
                style={{ 
                  transform: "rotateY(180deg)",
                }}>
