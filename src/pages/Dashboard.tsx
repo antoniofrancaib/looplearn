@@ -6,6 +6,7 @@ import { Plus, BookOpen, BarChart2, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NewDeckDialog } from "@/components/NewDeckDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Deck {
   id: string;
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [progress] = useState(67);
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -104,7 +106,11 @@ const Dashboard = () => {
         <h2 className="text-2xl font-bold tracking-tight">Recent Decks</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {decks.map((deck) => (
-            <Card key={deck.id} className="hover:bg-gray-50 transition-colors cursor-pointer">
+            <Card 
+              key={deck.id} 
+              className="hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => navigate(`/deck/${deck.id}`)}
+            >
               <CardHeader>
                 <CardTitle>{deck.title}</CardTitle>
               </CardHeader>

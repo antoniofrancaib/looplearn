@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import DeckDetail from "./pages/DeckDetail";
 import PersonalInfo from "./pages/PersonalInfo";
 import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/deck/:deckId" element={<DeckDetail />} />
             <Route path="/personal-info" element={<PersonalInfo />} />
             <Route path="/billing" element={<Billing />} />
           </Route>
