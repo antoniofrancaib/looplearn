@@ -54,29 +54,36 @@ export function NewDeckDialog({
       if (aiError) throw aiError
 
       // Insert the generated cards
-      const cardsToInsert = flashcardsData.cards.map((card: any) => ({
-        deck_id: deck.id,
-        front_content: card.front_content,
-        back_content: card.back_content
-      }))
+      if (flashcardsData.cards && Array.isArray(flashcardsData.cards)) {
+        const cardsToInsert = flashcardsData.cards.map((card: any) => ({
+          deck_id: deck.id,
+          front_content: card.front_content,
+          back_content: card.back_content,
+          next_review_at: new Date(), // Set initial review date to now
+          interval_days: 1, // Start with 1-day interval
+          ease_factor: 2.5, // Default ease factor
+        }))
 
-      const { error: cardsError } = await supabase
-        .from('cards')
-        .insert(cardsToInsert)
+        const { error: cardsError } = await supabase
+          .from('cards')
+          .insert(cardsToInsert)
 
-      if (cardsError) throw cardsError
+        if (cardsError) throw cardsError
+      } else {
+        throw new Error('Invalid flashcards data received')
+      }
 
       toast({
         title: "Success!",
-        description: "Your deck has been created with AI-generated flashcards.",
+        description: "Your deck has been created with 10 AI-generated flashcards.",
       })
 
       onOpenChange(false)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating deck:', error)
       toast({
         title: "Error",
-        description: "Failed to create deck. Please try again.",
+        description: error.message || "Failed to create deck. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -90,7 +97,7 @@ export function NewDeckDialog({
         <DialogHeader>
           <DialogTitle>Create New Deck</DialogTitle>
           <DialogDescription>
-            Enter the details for your new flashcard deck. Our AI will help generate relevant cards.
+            Enter the details for your new flashcard deck. Our AI will generate 10 relevant cards automatically.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>

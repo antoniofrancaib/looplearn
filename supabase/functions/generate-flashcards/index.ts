@@ -33,14 +33,19 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a specialized AI tutor focused on creating educational flashcards. Your task is to generate 5 high-quality flashcards based on the given topic.
+            content: `You are a specialized AI tutor focused on creating educational flashcards. Your task is to generate 10 high-quality flashcards based on the given topic.
+
+Each flashcard should follow this format:
+Front (Question/Prompt): A concise question, term, or concept to recall.
+Back (Answer/Explanation): A short, precise definition, key fact, or formula.
 
 Requirements for the flashcards:
-1. Each card should have a clear, concise question or prompt on the front
-2. The back should contain a brief but complete answer
-3. The content should be factually accurate and educational
-4. Avoid overly complex or compound questions
-5. Format must be valid JSON with a 'cards' array containing objects with 'front_content' and 'back_content'
+1. Each card should test a single, clear concept
+2. Questions should be direct and unambiguous
+3. Answers should be concise but complete
+4. Content should be factually accurate
+5. Avoid overly complex or compound questions
+6. Format must be valid JSON with a 'cards' array containing objects with 'front_content' and 'back_content'
 
 Example format:
 {
@@ -54,7 +59,7 @@ Example format:
           },
           {
             role: 'user',
-            content: `Create 5 educational flashcards for a deck titled "${title}" with the following description: ${description}. Remember to return valid JSON.`
+            content: `Create 10 educational flashcards for a deck titled "${title}" with the following description: ${description}. Remember to return valid JSON with exactly 10 cards.`
           }
         ]
       })
@@ -73,8 +78,8 @@ Example format:
     let flashcardsData
     try {
       flashcardsData = JSON.parse(content)
-      if (!Array.isArray(flashcardsData.cards)) {
-        throw new Error('Invalid flashcards format')
+      if (!Array.isArray(flashcardsData.cards) || flashcardsData.cards.length !== 10) {
+        throw new Error('Invalid flashcards format or incorrect number of cards')
       }
     } catch (error) {
       console.error('Error parsing OpenAI response:', error)
