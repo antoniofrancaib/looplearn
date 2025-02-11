@@ -17,6 +17,11 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
     setIsFlipped(!isFlipped);
   };
 
+  const handleDifficultyClick = (difficulty: 'forgot' | 'struggled' | 'easy') => {
+    onDifficultySelect(difficulty);
+    setIsFlipped(false); // Reset to show front content
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
       <div className="relative h-[200px] mb-8" style={{ perspective: "1000px" }}>
@@ -49,21 +54,21 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
       <div className="mt-6 flex justify-center space-x-4">
         <Button
           variant="destructive"
-          onClick={() => onDifficultySelect('forgot')}
+          onClick={() => handleDifficultyClick('forgot')}
           disabled={!isFlipped}
         >
           Forgot (1 day)
         </Button>
         <Button
           variant="outline"
-          onClick={() => onDifficultySelect('struggled')}
+          onClick={() => handleDifficultyClick('struggled')}
           disabled={!isFlipped}
         >
           Struggled (2 days)
         </Button>
         <Button
           className="bg-green-600 hover:bg-green-700"
-          onClick={() => onDifficultySelect('easy')}
+          onClick={() => handleDifficultyClick('easy')}
           disabled={!isFlipped}
         >
           Easy (5 days)
