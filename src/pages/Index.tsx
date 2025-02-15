@@ -1,16 +1,69 @@
-
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Brain, Sparkles, Clock, Library } from "lucide-react";
+import { 
+  ArrowRight, Brain, Sparkles, Clock, Library, Globe, BookOpen, 
+  Briefcase, Computer, Music, Atom, Wand2, Lightbulb, BarChart3, Smartphone 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      
+      {/* Navigation Menu */}
+      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="text-xl font-bold text-primary">
+              LoopLearn
+            </div>
+            
+            <div className="flex items-center space-x-12">
+              <button 
+                onClick={() => scrollToSection('home')} 
+                className="text-gray-700 hover:text-primary transition-colors"
+              >
+                Home
+              </button>
+              <button 
+                onClick={() => scrollToSection('how-it-works')} 
+                className="text-gray-700 hover:text-primary transition-colors"
+              >
+                How It Works
+              </button>
+              <button 
+                onClick={() => scrollToSection('use-cases')}
+                className="text-gray-700 hover:text-primary transition-colors"
+              >
+                Use Cases
+              </button>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-gray-700 hover:text-primary transition-colors"
+              >
+                Features
+              </button>
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/auth')}
+                className="text-gray-700 hover:text-primary"
+              >
+                Login
+              </Button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center px-8 pt-20 text-center">
+      <div id="home" className="flex flex-col items-center justify-center px-8 pt-32 text-center">
         <h1 className="animate-fade-in bg-gradient-to-r from-primary to-secondary bg-clip-text text-6xl font-bold text-transparent sm:text-7xl">
           Master Anything with AI
         </h1>
@@ -59,7 +112,7 @@ const Index = () => {
       </div>
 
       {/* How It Works Section */}
-      <div className="mx-auto mt-24 max-w-4xl px-8 pb-20">
+      <div id="how-it-works" className="mx-auto mt-24 max-w-4xl px-8 pb-20">
         <h2 className="text-center text-3xl font-bold text-gray-900 mb-12">How It Works</h2>
         
         <div className="space-y-12">
@@ -110,6 +163,113 @@ const Index = () => {
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Button>
           <p className="mt-4 text-sm text-gray-500">No credit card required</p>
+        </div>
+      </div>
+
+      {/* Use Cases Section */}
+      <div id="use-cases" className="mx-auto mt-24 max-w-7xl px-8">
+        <h2 className="text-center text-3xl font-bold text-gray-900 mb-4">What Can You Use LoopLearn For?</h2>
+        <p className="text-center text-xl text-gray-600 mb-12">
+          From students to professionals, our AI flashcards help you master anything faster.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <BookOpen className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Study for exams</h3>
+            <p className="text-center text-gray-600">
+              Prepare for school, college, or competitive exams with AI-generated study decks.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Globe className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Learn a New Language</h3>
+            <p className="text-center text-gray-600">
+              Master vocabulary, grammar, and phrases in any language with smart flashcards.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Briefcase className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Work & Career Growth</h3>
+            <p className="text-center text-gray-600">
+              Enhance professional skills, remember key concepts, and prepare for certifications.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Computer className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Coding & Tech Skills</h3>
+            <p className="text-center text-gray-600">
+              Learn programming languages, algorithms, and key technical concepts faster.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Music className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Music & Creative Skills</h3>
+            <p className="text-center text-gray-600">
+              Improve your music theory, chords, or creative knowledge with structured flashcards.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Atom className="h-12 w-12 text-primary" />
+            <h3 className="text-xl font-bold text-gray-900">Science & Engineering Concepts</h3>
+            <p className="text-center text-gray-600">
+              Master scientific formulas, physics principles, and engineering concepts with AI-powered flashcards.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div id="features" className="mx-auto mt-24 max-w-7xl px-8 pb-20">
+        <h2 className="text-center text-3xl font-bold text-gray-900 mb-4">Why Choose LoopLearn?</h2>
+        <p className="text-center text-xl text-gray-600 mb-12">
+          Enhance your learning with smart, AI-driven flashcards that adapt to your pace.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Wand2 className="h-12 w-12 text-primary" />
+            <p className="text-center text-gray-600">
+              Generate flashcards instantly with AI, saving hours of manual work
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Lightbulb className="h-12 w-12 text-primary" />
+            <p className="text-center text-gray-600">
+              Use scientifically proven spaced repetition to boost memory retention.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <BarChart3 className="h-12 w-12 text-primary" />
+            <p className="text-center text-gray-600">
+              Monitor your learning journey with insights and analytics that help you improve.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center space-y-4 p-6 rounded-lg border border-gray-100 bg-white shadow-sm">
+            <Smartphone className="h-12 w-12 text-primary" />
+            <p className="text-center text-gray-600">
+              Access your flashcards anywhere, anytime, on any device.
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center bg-gray-50 rounded-lg p-8">
+          <Button 
+            size="lg"
+            className="group text-lg"
+            onClick={() => navigate('/auth')}
+          >
+            Start Learning Now
+            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Button>
         </div>
       </div>
     </div>
