@@ -20,12 +20,12 @@ const Index = () => {
       {/* Navigation Menu */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="text-xl font-bold text-primary">
+          <div className="flex items-center h-16">
+            <div className="text-xl font-bold text-primary flex-none">
               LoopLearn
             </div>
             
-            <div className="flex items-center space-x-12">
+            <div className="flex items-center justify-center flex-grow space-x-12">
               <button 
                 onClick={() => scrollToSection('home')} 
                 className="text-gray-700 hover:text-primary transition-colors"
