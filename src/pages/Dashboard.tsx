@@ -12,7 +12,8 @@ import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { format, addDays } from 'date-fns';
+import { format, addDays, subDays } from 'date-fns';
+import { Calendar } from "@/components/ui/calendar";
 
 interface Deck {
   id: string;
@@ -32,6 +33,18 @@ const Dashboard = () => {
     date: format(addDays(new Date(), index), 'MMM dd'),
     cards: Math.floor(Math.random() * 20) + 5, // Random number between 5 and 25
   }));
+
+  // Generate mock data for the calendar - randomly mark some days as "completed"
+  const generateMockCompletedDays = () => {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 30; i >= 0; i--) {
+      if (Math.random() > 0.3) { // 70% chance of completing reviews on any given day
+        days.push(subDays(today, i));
+      }
+    }
+    return days;
+  };
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -63,36 +76,57 @@ const Dashboard = () => {
     progress: Math.floor(Math.random() * 100), // Replace with actual progress data
   }));
 
+  const completedDays = generateMockCompletedDays();
+
   return (
     <div className="space-y-8">
       {/* Review Schedule Section */}
-      <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
-        <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={upcomingReviews} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-              <XAxis 
-                dataKey="date" 
-                stroke="#374151"
-                fontSize={12}
-              />
-              <YAxis 
-                stroke="#374151"
-                fontSize={12}
-                label={{ 
-                  value: 'Cards', 
-                  angle: -90, 
-                  position: 'insideLeft',
-                  style: { fontSize: '12px' }
-                }}
-              />
-              <Tooltip />
-              <Bar 
-                dataKey="cards" 
-                fill="#14b8a6" 
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={upcomingReviews} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#374151"
+                  fontSize={12}
+                />
+                <YAxis 
+                  stroke="#374151"
+                  fontSize={12}
+                  label={{ 
+                    value: 'Cards', 
+                    angle: -90, 
+                    position: 'insideLeft',
+                    style: { fontSize: '12px' }
+                  }}
+                />
+                <Tooltip />
+                <Bar 
+                  dataKey="cards" 
+                  fill="#14b8a6" 
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
+          <h3 className="text-lg font-semibold mb-4">Don't Break the Chain! 🔥</h3>
+          <Calendar
+            mode="multiple"
+            selected={completedDays}
+            numberOfMonths={1}
+            showOutsideDays={false}
+            className="w-full"
+            modifiersStyles={{
+              selected: {
+                backgroundColor: '#14b8a6',
+                color: 'white',
+              }
+            }}
+          />
         </div>
       </div>
 
