@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -7,7 +8,6 @@ import { NewDeckDialog } from "@/components/NewDeckDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { InterestSelector, interests, Interest } from "@/components/InterestSelector";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
@@ -23,9 +23,6 @@ interface Deck {
 const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
-  const [selectedInterests, setSelectedInterests] = useState<Interest[]>(() => 
-    interests.filter(i => i.defaultSelected).map(i => i.id)
-  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,7 +62,7 @@ const Dashboard = () => {
         <div className="relative z-10">
           <h1 className="text-3xl font-bold">Welcome back, John! 👋</h1>
           <p className="mt-2 text-teal-50">Ready to continue your learning journey?</p>
-          <div className="mt-4 space-y-4">
+          <div className="mt-4">
             <Button 
               className="bg-white text-teal-600 hover:bg-teal-50"
               onClick={() => setNewDeckDialogOpen(true)}
@@ -73,13 +70,6 @@ const Dashboard = () => {
               <Plus className="mr-2 h-4 w-4" />
               Create New Deck
             </Button>
-            <div className="pt-4">
-              <p className="text-sm text-teal-50 mb-2">Customize your feed:</p>
-              <InterestSelector 
-                selectedInterests={selectedInterests}
-                onInterestsChange={(newInterests: Interest[]) => setSelectedInterests(newInterests)}
-              />
-            </div>
           </div>
         </div>
         <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-blue-400/20 to-transparent" />
@@ -88,7 +78,7 @@ const Dashboard = () => {
       {/* Personalized Feed */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Your Personal Feed</h2>
-        <PersonalizedFeed selectedInterests={selectedInterests} />
+        <PersonalizedFeed selectedInterests={[]} />
       </div>
 
       {/* Create New Deck Button */}
