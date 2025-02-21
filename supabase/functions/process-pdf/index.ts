@@ -10,6 +10,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -26,7 +27,7 @@ serve(async (req) => {
     const arrayBuffer = await file.arrayBuffer();
     const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
-    // Use OpenAI's vision model to extract content from the PDF
+    // Use OpenAI's chat completion model to extract content
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -34,7 +35,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
@@ -42,35 +43,42 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Please extract the key concepts from this PDF that would be useful for creating flashcards:',
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${base64String}`,
-                },
-              },
-            ],
+            content: `The following is a base64 encoded PDF. Please extract the key concepts that would be useful for creating flashcards: ${base64String.substring(0, 2000)}...`, // Truncate for API limits
           },
         ],
+        max_tokens: 500,
       }),
     });
 
     const data = await response.json();
+    console.log('OpenAI API Response:', data);
+
+    if (!data.choices || !data.choices[0]) {
+      throw new Error('Invalid response from OpenAI API');
+    }
+
     const extractedContent = data.choices[0].message.content;
 
     return new Response(
       JSON.stringify({ content: extractedContent }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      },
     );
   } catch (error) {
     console.error('Error processing PDF:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 },
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        }, 
+        status: 500 
+      },
     );
   }
 });
