@@ -11,6 +11,8 @@ import { motion } from "framer-motion";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { format, addDays } from 'date-fns';
 
 interface Deck {
   id: string;
@@ -24,6 +26,12 @@ const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
   const navigate = useNavigate();
+
+  // Generate mock data for the next 5 days
+  const upcomingReviews = Array.from({ length: 5 }).map((_, index) => ({
+    date: format(addDays(new Date(), index), 'MMM dd'),
+    cards: Math.floor(Math.random() * 20) + 5, // Random number between 5 and 25
+  }));
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -57,22 +65,35 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 p-8 text-white">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold">Welcome back, John! 👋</h1>
-          <p className="mt-2 text-teal-50">Ready to continue your learning journey?</p>
-          <div className="mt-4">
-            <Button 
-              className="bg-white text-teal-600 hover:bg-teal-50"
-              onClick={() => setNewDeckDialogOpen(true)}
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create New Deck
-            </Button>
-          </div>
+      {/* Review Schedule Section */}
+      <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
+        <div className="h-[200px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={upcomingReviews} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+              <XAxis 
+                dataKey="date" 
+                stroke="#374151"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="#374151"
+                fontSize={12}
+                label={{ 
+                  value: 'Cards', 
+                  angle: -90, 
+                  position: 'insideLeft',
+                  style: { fontSize: '12px' }
+                }}
+              />
+              <Tooltip />
+              <Bar 
+                dataKey="cards" 
+                fill="#14b8a6" 
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-        <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-blue-400/20 to-transparent" />
       </div>
 
       {/* Personalized Feed */}
