@@ -69,7 +69,7 @@ const Index = () => {
         </h1>
         
         <p className="animate-fade-in [animation-delay:200ms] mt-6 max-w-2xl text-xl text-gray-600">
-          Supercharge Your Brain with Spaced Repetition, Active Recall, Interleaving, and Science-Backed Flashcards for Unforgettable Mastery.
+          Boost Your Brainpower with Science-Backed Flashcards
         </p>
         
         <Button 
@@ -82,6 +82,7 @@ const Index = () => {
         </Button>
       </div>
 
+      {/* Rest of the sections */}
       {/* Features Grid */}
       <div className="mx-auto mt-24 max-w-7xl px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 animate-fade-in [animation-delay:600ms]">
