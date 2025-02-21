@@ -10,6 +10,7 @@ const corsHeaders = {
 interface GenerateCardParams {
   interest: string
   count: number
+  allInterests: string[]
 }
 
 serve(async (req) => {
@@ -19,10 +20,15 @@ serve(async (req) => {
   }
 
   try {
-    const { interest, count = 3 } = await req.json() as GenerateCardParams
+    const { interest, count = 3, allInterests } = await req.json() as GenerateCardParams
     const apiKey = Deno.env.get('OPENAI_API_KEY')
 
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured')
+    }
+
     console.log(`Generating ${count} cards for interest: ${interest}`)
+    console.log('All interests:', allInterests)
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -31,15 +37,19 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-3.5-turbo',
         messages: [
           {
             role: 'system',
-            content: `You are an expert flashcard creator for the topic: ${interest}. Create engaging, fun and educational flashcards that help users learn interesting facts about this topic.`
+            content: `You are a knowledgeable tutor specializing in creating engaging flashcards. 
+            The user is interested in: ${allInterests.join(', ')}. 
+            Focus on creating interesting, fun facts and educational content that connects to their interests.`
           },
           {
             role: 'user',
-            content: `Create ${count} flashcards about ${interest}. Make them fun and engaging! Return them in this exact JSON format:
+            content: `Create ${count} flashcards about ${interest}. Make them engaging and fun! 
+            Try to occasionally reference related topics from their other interests: ${allInterests.join(', ')}.
+            Return them in this exact JSON format:
             {
               "cards": [
                 {
@@ -50,12 +60,17 @@ serve(async (req) => {
             }`
           }
         ],
+        temperature: 0.7
       }),
     })
 
     const data = await response.json()
-    console.log('OpenAI response:', JSON.stringify(data))
     
+    if (!response.ok) {
+      console.error('OpenAI API error:', data)
+      throw new Error('Failed to generate cards: ' + JSON.stringify(data.error))
+    }
+
     let cards
     try {
       cards = JSON.parse(data.choices[0].message.content).cards
@@ -69,9 +84,14 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('Error:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ 
+        error: error.message || 'An unexpected error occurred'
+      }), 
+      { 
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
   }
 })

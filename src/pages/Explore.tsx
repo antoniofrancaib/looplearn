@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -27,6 +26,9 @@ const Explore = () => {
   const { data: interests, isLoading: loadingInterests } = useQuery({
     queryKey: ['user-interests'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data: userInterests, error } = await supabase
         .from('user_interests')
         .select('interest')
@@ -39,6 +41,9 @@ const Explore = () => {
   const { data: exploreCards, isLoading: loadingCards } = useQuery({
     queryKey: ['explore-cards'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const { data, error } = await supabase
         .from('explore_cards')
         .select('*')
@@ -54,21 +59,32 @@ const Explore = () => {
   // Generate new cards mutation
   const generateMutation = useMutation({
     mutationFn: async ({ interest, count }: { interest: Interest; count: number }) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
       const response = await supabase.functions.invoke('generate-explore-cards', {
-        body: { interest, count },
+        body: { 
+          interest, 
+          count,
+          allInterests: interests 
+        },
       })
+      
       if (response.error) throw response.error
       
       const { data: { cards } } = response
       
       // Insert generated cards into the database
-      const { error } = await supabase.from('explore_cards').insert(
-        cards.map((card: any) => ({
-          interest,
-          front_content: card.front,
-          back_content: card.back,
-        }))
-      )
+      const { error } = await supabase
+        .from('explore_cards')
+        .insert(
+          cards.map((card: any) => ({
+            interest,
+            front_content: card.front,
+            back_content: card.back,
+            user_id: user.id, // Important: Set the user_id
+          }))
+        )
       if (error) throw error
       
       // Refresh the cards list
