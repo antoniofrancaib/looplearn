@@ -76,11 +76,30 @@ export const useExploreCards = () => {
     mutationFn: async ({ interest, count }: { interest: Interest; count: number }) => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
+      
+      // Check total card count before generating
+      const { count: totalCards, error: countError } = await supabase
+        .from('explore_cards')
+        .select('*', { count: 'exact', head: true })
+      
+      if (countError) throw countError
+      
+      if (totalCards >= 100) {
+        throw new Error('Maximum card limit reached (100 cards)')
+      }
+      
+      // Adjust count if it would exceed the limit
+      const remainingSlots = 100 - totalCards
+      const adjustedCount = Math.min(count, remainingSlots)
+      
+      if (adjustedCount <= 0) {
+        throw new Error('Maximum card limit reached (100 cards)')
+      }
 
       const response = await supabase.functions.invoke('generate-explore-cards', {
         body: { 
           interest, 
-          count,
+          count: adjustedCount,
           allInterests: interests 
         },
       })
@@ -162,4 +181,3 @@ export const useExploreCards = () => {
     generateInitialCards,
   }
 }
-
