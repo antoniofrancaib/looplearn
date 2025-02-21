@@ -20,12 +20,10 @@ interface Deck {
   card_count: number;
 }
 
-type Interest = typeof interests[number]['id'];
-
 const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
-  const [selectedInterests, setSelectedInterests] = useState<Interest[]>(() => 
+  const [selectedInterests, setSelectedInterests] = useState(() => 
     interests.filter(i => i.defaultSelected).map(i => i.id)
   );
   const navigate = useNavigate();
@@ -79,7 +77,7 @@ const Dashboard = () => {
               <p className="text-sm text-teal-50 mb-2">Customize your feed:</p>
               <InterestSelector 
                 selectedInterests={selectedInterests}
-                onInterestsChange={(newInterests: Interest[]) => setSelectedInterests(newInterests)}
+                onInterestsChange={setSelectedInterests}
               />
             </div>
           </div>
