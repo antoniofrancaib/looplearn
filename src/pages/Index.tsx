@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { 
   ArrowRight, Brain, Sparkles, Clock, Library, Globe, BookOpen, 
@@ -87,26 +86,26 @@ const Index = () => {
       <div className="mx-auto mt-24 max-w-7xl px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 animate-fade-in [animation-delay:600ms]">
           <div className="flex flex-col items-center space-y-4 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
-            <Brain className="h-12 w-12 text-primary" />
-            <h2 className="text-xl font-bold text-gray-900">AI-Powered Creation</h2>
+            <Clock className="h-12 w-12 text-primary" />
+            <h2 className="text-xl font-bold text-gray-900">Spaced Repetition</h2>
             <p className="text-center text-gray-600">
-              Generate comprehensive flashcard decks instantly with our advanced AI. Save hours of manual creation time.
+              Review flashcards at increasing intervals to fight forgetting, ensuring long-lasting retention.
+            </p>
+          </div>
+          
+          <div className="flex flex-col items-center space-y-4 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
+            <Brain className="h-12 w-12 text-primary" />
+            <h2 className="text-xl font-bold text-gray-900">Active Recall</h2>
+            <p className="text-center text-gray-600">
+              Test yourself to retrieve info, strengthening memory and boosting retention with our flashcards.
             </p>
           </div>
           
           <div className="flex flex-col items-center space-y-4 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
             <Sparkles className="h-12 w-12 text-primary" />
-            <h2 className="text-xl font-bold text-gray-900">Smart Learning</h2>
+            <h2 className="text-xl font-bold text-gray-900">Interleaving</h2>
             <p className="text-center text-gray-600">
-              Our spaced repetition system adapts to your learning pace, showing cards at the perfect moment for maximum retention.
-            </p>
-          </div>
-          
-          <div className="flex flex-col items-center space-y-4 rounded-lg border border-gray-100 bg-white p-6 shadow-sm">
-            <Clock className="h-12 w-12 text-primary" />
-            <h2 className="text-xl font-bold text-gray-900">Efficient Progress</h2>
-            <p className="text-center text-gray-600">
-              Learn faster and remember longer with scientifically proven spaced repetition techniques.
+              Mix different topics or skills during study sessions to enhance problem-solving and retention with our flashcards.
             </p>
           </div>
         </div>
