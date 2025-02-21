@@ -1,4 +1,3 @@
-
 import { Outlet, useNavigate } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/button";
@@ -9,15 +8,16 @@ import { useRewards } from "@/contexts/RewardsContext";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
-import { Calendar } from "@/components/ui/calendar";
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays, startOfToday, isEqual } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { supabase } from "@/integrations/supabase/client";
 
 const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { sparks, dailyProgress } = useRewards();
   const [timeSpent, setTimeSpent] = useState(0);
   const [topDeck, setTopDeck] = useState({ name: "French Basics", timeSpent: 45 });
+  const [completedDays, setCompletedDays] = useState<Date[]>([]);
   const navigate = useNavigate();
 
   // Generate mock data for the frequency plot
@@ -25,6 +25,41 @@ const DashboardLayout = () => {
     date: format(addDays(new Date(), index), 'MMM dd'),
     cards: Math.floor(Math.random() * 20) + 5,
   }));
+
+  // Fetch user activity data for the last 7 days
+  useEffect(() => {
+    const fetchUserActivity = async () => {
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+      
+      const { data, error } = await supabase
+        .from('user_daily_activity')
+        .select('activity_date')
+        .gte('activity_date', sevenDaysAgo)
+        .order('activity_date', { ascending: true });
+
+      if (!error && data) {
+        const activityDates = data.map(activity => new Date(activity.activity_date));
+        setCompletedDays(activityDates);
+      } else if (error) {
+        console.error('Error fetching user activity:', error);
+      }
+    };
+
+    fetchUserActivity();
+  }, []);
+
+  // Generate last 7 days array for streak visualization
+  const last7Days = Array.from({ length: 7 }).map((_, index) => {
+    const date = subDays(startOfToday(), 6 - index);
+    const isCompleted = completedDays.some(completedDate => 
+      isEqual(new Date(completedDate), date)
+    );
+    return {
+      date,
+      isCompleted,
+      dayLabel: format(date, 'EEE'),
+    };
+  });
 
   // Simulate time tracking (in a real app, this would be actual tracking)
   useEffect(() => {
@@ -52,6 +87,30 @@ const DashboardLayout = () => {
       </div>
       <p className="text-xl font-semibold text-teal-600">{value}</p>
     </motion.div>
+  );
+
+  const WeekStreak = () => (
+    <div className="p-3 rounded-lg bg-white/80 shadow-sm border border-teal-50">
+      <div className="flex items-center gap-2 mb-3">
+        <Trophy className="h-4 w-4 text-teal-500" />
+        <p className="text-xs text-gray-500">Week Streak</p>
+      </div>
+      <div className="flex gap-1 justify-between">
+        {last7Days.map(({ date, isCompleted, dayLabel }) => (
+          <div key={dayLabel} className="flex flex-col items-center gap-1">
+            <div 
+              className={cn(
+                "w-8 h-8 rounded-md transition-colors",
+                isCompleted 
+                  ? "bg-teal-500 shadow-sm" 
+                  : "bg-gray-100 border border-gray-200"
+              )}
+            />
+            <span className="text-xs text-gray-500">{dayLabel}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 
   const StatsList = () => (
@@ -90,6 +149,9 @@ const DashboardLayout = () => {
         </div>
       </div>
 
+      {/* Week Streak */}
+      <WeekStreak />
+
       {/* Frequency Plot */}
       <div className="p-3 rounded-lg bg-white/80 shadow-sm border border-teal-50">
         <h3 className="text-sm font-semibold mb-2 text-gray-700">Upcoming Reviews</h3>
@@ -116,22 +178,6 @@ const DashboardLayout = () => {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      {/* Don't Break the Chain Calendar */}
-      <div className="p-3 rounded-lg bg-white/80 shadow-sm border border-teal-50">
-        <h3 className="text-sm font-semibold mb-2 text-gray-700">Don't Break the Chain! 🔥</h3>
-        <Calendar
-          mode="multiple"
-          selected={[]} // You'll need to pass the actual completed days here
-          numberOfMonths={1}
-          showOutsideDays={false}
-          className="w-full"
-          classNames={{
-            day_selected: "bg-teal-500 text-white hover:bg-teal-600",
-            day: "h-8 w-8 p-0 font-normal",
-          }}
-        />
       </div>
 
       <StatCard 
