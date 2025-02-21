@@ -5,6 +5,7 @@ import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRewards } from "@/contexts/RewardsContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { supabase } from "@/integrations/supabase/client";
 import { ProfileMenu } from "./ProfileMenu";
 import { StatsList } from "./dashboard/StatsList";
 import { Sidebar } from "./dashboard/Sidebar";
