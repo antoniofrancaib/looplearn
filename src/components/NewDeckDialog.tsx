@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -10,10 +11,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
-import { Mic, Loader2 } from "lucide-react"
+import { Mic, Loader2, PaperClip } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function NewDeckDialog({
@@ -28,7 +29,51 @@ export function NewDeckDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.type !== 'application/pdf') {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setSelectedFile(file)
+    setIsProcessing(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const { data, error } = await supabase.functions
+        .invoke('process-pdf', {
+          body: formData,
+        })
+
+      if (error) throw error
+
+      if (data?.content) {
+        setDescription(data.content)
+      }
+    } catch (error: any) {
+      console.error('Error processing PDF:', error)
+      toast({
+        title: "Error",
+        description: "Failed to process PDF. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,9 +107,9 @@ export function NewDeckDialog({
           deck_id: deck.id,
           front_content: card.front_content,
           back_content: card.back_content,
-          next_review_at: new Date(), // Set initial review date to now
-          interval_days: 1, // Start with 1-day interval
-          ease_factor: 2.5, // Default ease factor
+          next_review_at: new Date(),
+          interval_days: 1,
+          ease_factor: 2.5,
         }))
 
         const { error: cardsError } = await supabase
@@ -84,6 +129,7 @@ export function NewDeckDialog({
       onOpenChange(false)
       setTitle("")
       setDescription("")
+      setSelectedFile(null)
     } catch (error: any) {
       console.error('Error creating deck:', error)
       toast({
@@ -125,7 +171,7 @@ export function NewDeckDialog({
         <DialogHeader>
           <DialogTitle>Create New Deck</DialogTitle>
           <DialogDescription>
-            Enter the details for your new flashcard deck. Our AI will generate 10 relevant cards automatically.
+            Enter the details for your new flashcard deck or upload a PDF. Our AI will generate 10 relevant cards automatically.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -143,31 +189,58 @@ export function NewDeckDialog({
                 placeholder="Describe your deck (e.g., 'I want a deck with 20 Spanish vocab words')"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[100px] w-full pr-12"
+                className="min-h-[100px] w-full pr-24"
               />
-              <Button
-                type="button"
-                size="icon"
-                className={`absolute right-2 top-2 bg-teal-500 hover:bg-teal-600 text-white ${
-                  isRecording ? 'animate-pulse' : ''
-                }`}
-                onClick={startRecording}
-                disabled={isRecording || isProcessing}
-              >
-                {isRecording ? (
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  >
+              <div className="absolute right-2 top-2 flex gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept=".pdf"
+                  onChange={handleFileSelect}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  className="bg-teal-500 hover:bg-teal-600 text-white"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <PaperClip className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  size="icon"
+                  className={`bg-teal-500 hover:bg-teal-600 text-white ${
+                    isRecording ? 'animate-pulse' : ''
+                  }`}
+                  onClick={startRecording}
+                  disabled={isRecording || isProcessing}
+                >
+                  {isRecording ? (
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                    >
+                      <Mic className="h-4 w-4" />
+                    </motion.div>
+                  ) : isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
                     <Mic className="h-4 w-4" />
-                  </motion.div>
-                ) : isProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
+                  )}
+                </Button>
+              </div>
             </div>
+            {selectedFile && (
+              <p className="text-sm text-muted-foreground">
+                Selected file: {selectedFile.name}
+              </p>
+            )}
           </div>
           <Button
             type="submit"
