@@ -12,8 +12,9 @@ import PersonalInfo from "./pages/PersonalInfo";
 import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
-import { RewardsProvider } from "@/contexts/RewardsContext";
 import InterestsPage from "./pages/Interests";
+import Explore from "./pages/Explore";
+import { RewardsProvider } from "@/contexts/RewardsContext";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/personal-info" element={<PersonalInfo />} />
               <Route path="/billing" element={<Billing />} />
               <Route path="/interests" element={<InterestsPage />} />
+              <Route path="/explore" element={<Explore />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

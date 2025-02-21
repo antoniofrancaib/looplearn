@@ -91,6 +91,36 @@ export type Database = {
           },
         ]
       }
+      explore_cards: {
+        Row: {
+          back_content: string
+          created_at: string | null
+          front_content: string
+          id: string
+          interest: string
+          saved: boolean | null
+          user_id: string
+        }
+        Insert: {
+          back_content: string
+          created_at?: string | null
+          front_content: string
+          id?: string
+          interest: string
+          saved?: boolean | null
+          user_id: string
+        }
+        Update: {
+          back_content?: string
+          created_at?: string | null
+          front_content?: string
+          id?: string
+          interest?: string
+          saved?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
