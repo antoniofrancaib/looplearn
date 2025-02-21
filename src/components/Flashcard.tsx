@@ -2,22 +2,28 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface FlashcardProps {
   front: string;
   back: string;
-  onNext: () => void;
+  onNext?: () => void;
+  onDifficultySelect?: (difficulty: 'forgot' | 'struggled' | 'easy') => void;
 }
 
-export const Flashcard = ({ front, back, onNext }: FlashcardProps) => {
+export const Flashcard = ({ front, back, onNext, onDifficultySelect }: FlashcardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   const handleClick = () => {
-    if (isFlipped) {
-      setIsFlipped(false);
-      onNext();
+    if (!onDifficultySelect) {
+      if (isFlipped) {
+        setIsFlipped(false);
+        onNext?.();
+      } else {
+        setIsFlipped(true);
+      }
     } else {
-      setIsFlipped(true);
+      setIsFlipped(!isFlipped);
     }
   };
 
@@ -39,13 +45,51 @@ export const Flashcard = ({ front, back, onNext }: FlashcardProps) => {
             </div>
           </Card>
 
-          <Card className={`w-full h-full p-6 shadow-lg absolute backface-hidden ${isFlipped ? 'visible' : 'invisible'}`}
-               style={{ 
-                 transform: "rotateY(180deg)",
-               }}>
-            <div className="text-center text-xl">
+          <Card 
+            className={`w-full h-full p-6 shadow-lg absolute backface-hidden ${isFlipped ? 'visible' : 'invisible'}`}
+            style={{ 
+              transform: "rotateY(180deg)",
+            }}
+          >
+            <div className="text-center text-xl mb-4">
               {back}
             </div>
+            
+            {onDifficultySelect && isFlipped && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDifficultySelect('forgot');
+                  }}
+                >
+                  Forgot
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDifficultySelect('struggled');
+                  }}
+                >
+                  Struggled
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="bg-teal-500 hover:bg-teal-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDifficultySelect('easy');
+                  }}
+                >
+                  Easy
+                </Button>
+              </div>
+            )}
           </Card>
         </motion.div>
       </div>
