@@ -1,94 +1,41 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Core colors - true monochrome */
-    --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 10%; /* Near black for text */
+    --background: 240 50% 5%;
+    --foreground: 0 0% 85%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card: 240 50% 8%;
+    --card-foreground: 0 0% 85%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover: 240 50% 8%;
+    --popover-foreground: 0 0% 85%;
 
-    /* Primary - dark gray for main elements */
-    --primary: 0 0% 15%;
+    --primary: 176 100% 35%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - light gray for subtle elements */
-    --secondary: 0 0% 97%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 240 38% 16%;
+    --secondary-foreground: 0 0% 85%;
 
-    /* Muted - mid grays for less prominent elements */
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 240 38% 16%;
+    --muted-foreground: 0 0% 85%;
 
-    /* Accent - slightly darker gray for highlights */
-    --accent: 0 0% 94%;
-    --accent-foreground: 0 0% 15%;
+    --accent: 176 100% 35%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Destructive - keeping red for important alerts */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Border and input colors */
-    --border: 0 0% 92%;
-    --input: 0 0% 92%;
-    --ring: 0 0% 15%;
+    --border: 240 38% 20%;
+    --input: 240 38% 20%;
+    --ring: 176 100% 35%;
 
-    --radius: 0.25rem;
-
-    /* Sidebar colors */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 25%;
-    --sidebar-primary: 0 0% 15%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 0 0% 92%;
-    --sidebar-ring: 0 0% 15%;
-  }
-
-  .dark {
-    --background: 0 0% 10%; /* Dark gray background */
-    --foreground: 0 0% 98%; /* Off-white text */
-
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 12%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 0 0% 83.9%;
-
-    --sidebar-background: 0 0% 12%;
-    --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 12%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 0 0% 83.9%;
+    --radius: 0.5rem;
   }
 }
 
@@ -98,11 +45,57 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-[#000000] via-[#1A1A3A] to-[#2D2D5F] text-[#D9D9D9] min-h-screen font-sans;
+  }
+
+  h1 {
+    @apply text-[48px] font-bold text-white;
+  }
+
+  h2 {
+    @apply text-[32px] font-bold text-white;
+  }
+
+  h3 {
+    @apply text-[24px] font-bold text-white;
+  }
+
+  p {
+    @apply text-[16px] text-[#D9D9D9];
   }
 }
 
-/* Add this to your existing CSS */
+.grid-background {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.interactive {
+  transition: all 0.3s ease;
+}
+
+.interactive:hover {
+  @apply animate-glow cursor-pointer;
+}
+
+/* Update App.css content */
+#root {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Add styles for mobile navigation */
+@media (max-width: 768px) {
+  .mobile-menu {
+    @apply fixed top-0 right-0 h-full w-64 bg-secondary transform transition-transform duration-300 ease-in-out;
+  }
+
+  .mobile-menu.hidden {
+    @apply translate-x-full;
+  }
+}
+
+/* Scrollbar styling */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
