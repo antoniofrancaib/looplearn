@@ -102,12 +102,13 @@ const DeckDetail = () => {
         difficulty
       );
 
-      const nextReviewAt = addDays(new Date(), newInterval);
+      // Calculate next review date based on the interval
+      const nextReviewAt = addDays(new Date(), newInterval).toISOString();
 
       const { error } = await supabase
         .from('cards')
         .update({
-          next_review_at: nextReviewAt.toISOString(),
+          next_review_at: nextReviewAt,
           interval_days: newInterval,
           ease_factor: newEaseFactor,
           last_reviewed_at: new Date().toISOString(),
@@ -116,9 +117,22 @@ const DeckDetail = () => {
         .eq('id', cardId);
 
       if (error) throw error;
+
+      // Return the updated card data to use in the cache update
+      return {
+        cardId,
+        nextReviewAt,
+        newInterval,
+        newEaseFactor
+      };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cards', deckId] });
+    onSuccess: (updatedCard) => {
+      // Update the cards query data to remove the reviewed card
+      queryClient.setQueryData(['cards', deckId], (oldData: Card[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(card => card.id !== updatedCard.cardId);
+      });
+
       if (cards && currentCardIndex < cards.length - 1) {
         setCurrentCardIndex(prev => prev + 1);
       } else {

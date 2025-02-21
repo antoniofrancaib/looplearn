@@ -41,6 +41,7 @@ export const UpcomingReviews = () => {
 
       return counts;
     },
+    refetchInterval: 5000, // Refetch every 5 seconds to keep the chart up to date
   });
 
   if (isLoading) {
