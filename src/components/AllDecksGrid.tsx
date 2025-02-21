@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, MoreVertical, Pencil, Trash } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,9 +13,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion } from "framer-motion";
 import { useRewards } from "@/contexts/RewardsContext";
 import { Celebration } from "@/components/Celebration";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Deck {
   id: string;
@@ -32,6 +42,7 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
   const [pendingDeckId, setPendingDeckId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const { completeDeck } = useRewards();
+  const navigate = useNavigate();
 
   const handleAddToSession = (deckId: string) => {
     setPendingDeckId(deckId);
@@ -43,6 +54,7 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
       const newSelected = new Set(selectedDecks);
       newSelected.add(pendingDeckId);
       setSelectedDecks(newSelected);
+      toast.success("Deck added to today's session");
     }
     setDialogOpen(false);
     setPendingDeckId(null);
@@ -51,6 +63,28 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
   const handleDeckCompletion = (deckId: string) => {
     completeDeck(deckId);
     setShowCelebration(true);
+  };
+
+  const handleEditDeck = (deckId: string) => {
+    navigate(`/deck/${deckId}`);
+  };
+
+  const handleDeleteDeck = async (deckId: string) => {
+    const { error } = await supabase
+      .from('decks')
+      .delete()
+      .eq('id', deckId);
+
+    if (error) {
+      toast.error("Failed to delete deck");
+      return;
+    }
+
+    toast.success("Deck deleted successfully");
+    // Remove the deck from selected decks if it was there
+    const newSelected = new Set(selectedDecks);
+    newSelected.delete(deckId);
+    setSelectedDecks(newSelected);
   };
 
   return (
@@ -75,7 +109,7 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
                 transition={{ duration: 0.3 }}
               >
                 <Card className="relative group overflow-hidden">
-                  <div className="absolute top-4 right-4 z-10">
+                  <div className="absolute top-4 right-4 z-10 flex gap-2">
                     <Button
                       size="sm"
                       variant={selectedDecks.has(deck.id) ? "default" : "outline"}
@@ -88,16 +122,39 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
                     >
                       {selectedDecks.has(deck.id) ? (
                         <>
-                          <Check className="h-4 w-4 mr-1" />
-                          Added
+                          <Check className="h-4 w-4" />
                         </>
                       ) : (
                         <>
-                          <Plus className="h-4 w-4 mr-1" />
-                          Add to Today
+                          <Plus className="h-4 w-4" />
                         </>
                       )}
                     </Button>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="hover:border-teal-500 hover:text-teal-500"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEditDeck(deck.id)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-red-600 hover:text-red-600"
+                          onClick={() => handleDeleteDeck(deck.id)}
+                        >
+                          <Trash className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <div className="p-6">
@@ -150,4 +207,4 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
       />
     </>
   );
-} 
+}
