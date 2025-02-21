@@ -1,7 +1,8 @@
+
 import { Outlet, useNavigate } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/button";
-import { BarChart2, Activity, Trophy, Users, Compass, Mic, Menu, Home, Library, Settings, Star, Timer, BookOpen } from "lucide-react";
+import { BarChart2, Activity, Trophy, Users, Compass, Mic, Menu, Home, Library, Settings, Star, Timer, BookOpen, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useRewards } from "@/contexts/RewardsContext";
@@ -101,6 +102,12 @@ const DashboardLayout = () => {
       icon: Activity,
       description: "Track your learning journey",
       url: "/progress"
+    },
+    {
+      title: "Interests",
+      icon: Heart,
+      description: "Manage your learning interests",
+      url: "/interests"
     },
     {
       title: "Challenges",
