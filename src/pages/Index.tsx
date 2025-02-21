@@ -1,55 +1,52 @@
 import { Button } from "@/components/ui/button";
 import { 
   ArrowRight, Brain, Sparkles, Clock, Library, Globe, BookOpen, 
-  Briefcase, Computer, Music, Atom, Wand2, Lightbulb, BarChart3, Smartphone 
+  Briefcase, Computer, Music, Atom, Wand2, Lightbulb, BarChart3, Smartphone, Menu 
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useState } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+    setIsMobileMenuOpen(false); // Close mobile menu after clicking
   };
+
+  const navItems = [
+    { label: 'Home', section: 'home' },
+    { label: 'How It Works', section: 'how-it-works' },
+    { label: 'Use Cases', section: 'use-cases' },
+    { label: 'Features', section: 'features' },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Navigation Menu */}
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="flex items-center h-16">
-            <div className="text-xl font-bold text-primary flex-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="text-xl font-bold text-primary">
               LoopLearn
             </div>
             
-            <div className="flex items-center justify-center flex-grow space-x-12">
-              <button 
-                onClick={() => scrollToSection('home')} 
-                className="text-gray-700 hover:text-primary transition-colors"
-              >
-                Home
-              </button>
-              <button 
-                onClick={() => scrollToSection('how-it-works')} 
-                className="text-gray-700 hover:text-primary transition-colors"
-              >
-                How It Works
-              </button>
-              <button 
-                onClick={() => scrollToSection('use-cases')}
-                className="text-gray-700 hover:text-primary transition-colors"
-              >
-                Use Cases
-              </button>
-              <button 
-                onClick={() => scrollToSection('features')}
-                className="text-gray-700 hover:text-primary transition-colors"
-              >
-                Features
-              </button>
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center justify-center space-x-8">
+              {navItems.map((item) => (
+                <button 
+                  key={item.section}
+                  onClick={() => scrollToSection(item.section)} 
+                  className="text-gray-700 hover:text-primary transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/auth')}
@@ -58,6 +55,37 @@ const Index = () => {
                 Login
               </Button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" className="relative">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white/95 backdrop-blur-sm">
+                <div className="flex flex-col gap-4 mt-8">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.section}
+                      onClick={() => scrollToSection(item.section)}
+                      className="flex items-center space-x-2 text-lg text-gray-700 hover:text-primary transition-colors py-2"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                  <Button 
+                    onClick={() => {
+                      navigate('/auth');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="mt-4"
+                  >
+                    Login
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
@@ -82,7 +110,6 @@ const Index = () => {
         </Button>
       </div>
 
-      {/* Rest of the sections */}
       {/* Features Grid */}
       <div className="mx-auto mt-24 max-w-7xl px-8">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-3 animate-fade-in [animation-delay:600ms]">
