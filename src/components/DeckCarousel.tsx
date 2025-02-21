@@ -1,3 +1,4 @@
+
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -33,8 +34,7 @@ const DeckPreview = ({ deck, onSelect }: DeckPreviewProps) => {
         <div className="space-y-4">
           <Progress 
             value={deck.progress} 
-            className="h-2 bg-white/20" 
-            indicatorClassName="bg-white" 
+            className="h-2 [&>div]:bg-white bg-white/20" 
           />
           <div className="flex items-center justify-between text-sm text-teal-50">
             <div className="flex items-center gap-1">
