@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useState, useRef } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
-import { Mic, Loader2, PaperClip } from "lucide-react"
+import { Mic, Loader2, Paperclip } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function NewDeckDialog({
@@ -209,7 +208,7 @@ export function NewDeckDialog({
                   {isProcessing ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <PaperClip className="h-4 w-4" />
+                    <Paperclip className="h-4 w-4" />
                   )}
                 </Button>
                 <Button
