@@ -1,21 +1,13 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
+import React, { useState, useEffect } from "react";
+import { Brain, Clock, Trophy, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Brain, Calendar, Clock, Trophy, Zap } from "lucide-react";
+import { StatCard } from "@/components/stats/StatCard";
+import { WeeklyProgressChart } from "@/components/charts/WeeklyProgressChart";
+import { SubjectDistribution } from "@/components/charts/SubjectDistribution";
+import { MasteryProgress } from "@/components/progress/MasteryProgress";
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 interface LearningStats {
   totalCards: number;
@@ -26,8 +18,6 @@ interface LearningStats {
   subjects: { name: string; count: number }[];
   weeklyProgress: { day: string; reviews: number }[];
 }
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const ProgressPage = () => {
   const [stats, setStats] = useState<LearningStats>({
@@ -47,11 +37,9 @@ const ProgressPage = () => {
         .select('*');
 
       if (!cardsError && cardsData) {
-        // Calculate stats from cards data
         const totalCards = cardsData.length;
         const completedReviews = cardsData.filter(card => card.review_count > 0).length;
         
-        // Mock data for demonstration - in a real app, this would come from actual user data
         setStats({
           totalCards,
           completedReviews,
@@ -81,27 +69,6 @@ const ProgressPage = () => {
     fetchLearningStats();
   }, []);
 
-  const StatCard = ({ icon: Icon, label, value, color }: { 
-    icon: React.ElementType;
-    label: string;
-    value: string | number;
-    color: string;
-  }) => (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className={`p-3 rounded-full ${color}`}>
-            <Icon className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="text-2xl font-bold">{value}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="p-8 space-y-8">
       <div>
@@ -109,7 +76,6 @@ const ProgressPage = () => {
         <p className="text-gray-500">Track your learning journey and achievements</p>
       </div>
 
-      {/* Key Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           icon={Brain} 
@@ -137,78 +103,15 @@ const ProgressPage = () => {
         />
       </div>
 
-      {/* Weekly Progress Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly Review Activity</CardTitle>
-        </CardHeader>
-        <CardContent className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.weeklyProgress}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="reviews" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      <WeeklyProgressChart data={stats.weeklyProgress} />
 
-      {/* Subject Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Subject Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.subjects}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="count"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {stats.subjects.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Mastery Progress</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Overall Progress</span>
-                <span>{stats.averageScore}%</span>
-              </div>
-              <Progress className="h-2 [&>div]:bg-primary" style={{ transform: `translateX(-${100 - stats.averageScore}%)` }} />
-            </div>
-            {stats.subjects.map((subject, index) => (
-              <div key={subject.name} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>{subject.name}</span>
-                  <span>{Math.round((subject.count / stats.totalCards) * 100)}%</span>
-                </div>
-                <Progress 
-                  className="h-2 [&>div]:bg-primary" 
-                  style={{ transform: `translateX(-${100 - Math.round((subject.count / stats.totalCards) * 100)}%)` }}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        <SubjectDistribution subjects={stats.subjects} colors={COLORS} />
+        <MasteryProgress 
+          averageScore={stats.averageScore}
+          subjects={stats.subjects}
+          totalCards={stats.totalCards}
+        />
       </div>
     </div>
   );
