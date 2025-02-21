@@ -45,6 +45,7 @@ interface AllDecksGridProps {
 export function AllDecksGrid({ decks, selectedDecks, onSelectedDecksChange }: AllDecksGridProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingDeckId, setPendingDeckId] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<'add' | 'remove'>('add');
   const [showCelebration, setShowCelebration] = useState(false);
   const [localDecks, setLocalDecks] = useState<Deck[]>(decks);
   const { completeDeck } = useRewards();
@@ -54,17 +55,29 @@ export function AllDecksGrid({ decks, selectedDecks, onSelectedDecksChange }: Al
     setLocalDecks(decks);
   }, [decks]);
 
-  const handleAddToSession = (deckId: string) => {
-    setPendingDeckId(deckId);
-    setDialogOpen(true);
+  const handleToggleDeck = (deckId: string) => {
+    if (selectedDecks.has(deckId)) {
+      setPendingAction('remove');
+      setPendingDeckId(deckId);
+      setDialogOpen(true);
+    } else {
+      setPendingAction('add');
+      setPendingDeckId(deckId);
+      setDialogOpen(true);
+    }
   };
 
-  const confirmAddToSession = () => {
+  const confirmToggleDeck = () => {
     if (pendingDeckId) {
       const newSelected = new Set(selectedDecks);
-      newSelected.add(pendingDeckId);
+      if (pendingAction === 'add') {
+        newSelected.add(pendingDeckId);
+        toast.success("Deck added to today's session");
+      } else {
+        newSelected.delete(pendingDeckId);
+        toast.success("Deck removed from today's session");
+      }
       onSelectedDecksChange(newSelected);
-      toast.success("Deck added to today's session");
     }
     setDialogOpen(false);
     setPendingDeckId(null);
@@ -148,16 +161,12 @@ export function AllDecksGrid({ decks, selectedDecks, onSelectedDecksChange }: Al
                           ? "bg-teal-500 hover:bg-teal-600 text-white"
                           : "hover:border-teal-500 hover:text-teal-500"
                       }`}
-                      onClick={() => handleAddToSession(deck.id)}
+                      onClick={() => handleToggleDeck(deck.id)}
                     >
                       {selectedDecks.has(deck.id) ? (
-                        <>
-                          <Check className="h-4 w-4" />
-                        </>
+                        <Check className="h-4 w-4" />
                       ) : (
-                        <>
-                          <Plus className="h-4 w-4" />
-                        </>
+                        <Plus className="h-4 w-4" />
                       )}
                     </Button>
 
@@ -205,25 +214,28 @@ export function AllDecksGrid({ decks, selectedDecks, onSelectedDecksChange }: Al
             ))}
           </div>
 
-          {/* Fade effect for scroll indication */}
           <div className="absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" />
         </div>
 
         <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Add to Today's Session?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {pendingAction === 'add' ? "Add to Today's Session?" : "Remove from Today's Session?"}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                This deck will be included in your study session for today. You can remove it later if needed.
+                {pendingAction === 'add' 
+                  ? "This deck will be included in your study session for today. You can remove it later if needed."
+                  : "This deck will be removed from your study session for today. You can add it back later if needed."}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-teal-500 hover:bg-teal-600"
-                onClick={confirmAddToSession}
+                className={pendingAction === 'add' ? "bg-teal-500 hover:bg-teal-600" : "bg-red-500 hover:bg-red-600"}
+                onClick={confirmToggleDeck}
               >
-                Add to Session
+                {pendingAction === 'add' ? 'Add to Session' : 'Remove from Session'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
