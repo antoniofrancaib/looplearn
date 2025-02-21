@@ -36,18 +36,23 @@ interface Deck {
   };
 }
 
-export function AllDecksGrid({ decks: initialDecks }: { decks: Deck[] }) {
-  const [selectedDecks, setSelectedDecks] = useState<Set<string>>(new Set());
+interface AllDecksGridProps {
+  decks: Deck[];
+  selectedDecks: Set<string>;
+  onSelectedDecksChange: (selected: Set<string>) => void;
+}
+
+export function AllDecksGrid({ decks, selectedDecks, onSelectedDecksChange }: AllDecksGridProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingDeckId, setPendingDeckId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [decks, setDecks] = useState<Deck[]>(initialDecks);
+  const [localDecks, setLocalDecks] = useState<Deck[]>(decks);
   const { completeDeck } = useRewards();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setDecks(initialDecks);
-  }, [initialDecks]);
+    setLocalDecks(decks);
+  }, [decks]);
 
   const handleAddToSession = (deckId: string) => {
     setPendingDeckId(deckId);
@@ -58,7 +63,7 @@ export function AllDecksGrid({ decks: initialDecks }: { decks: Deck[] }) {
     if (pendingDeckId) {
       const newSelected = new Set(selectedDecks);
       newSelected.add(pendingDeckId);
-      setSelectedDecks(newSelected);
+      onSelectedDecksChange(newSelected);
       toast.success("Deck added to today's session");
     }
     setDialogOpen(false);
@@ -99,12 +104,12 @@ export function AllDecksGrid({ decks: initialDecks }: { decks: Deck[] }) {
       }
 
       // Update local state to remove the deleted deck
-      setDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
+      setLocalDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
       
       // Remove the deck from selected decks if it was there
       const newSelected = new Set(selectedDecks);
       newSelected.delete(deckId);
-      setSelectedDecks(newSelected);
+      onSelectedDecksChange(newSelected);
       
       toast.success("Deck deleted successfully");
     } catch (error) {
@@ -126,7 +131,7 @@ export function AllDecksGrid({ decks: initialDecks }: { decks: Deck[] }) {
 
         <div className="relative">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-            {decks.map((deck) => (
+            {localDecks.map((deck) => (
               <motion.div
                 key={deck.id}
                 initial={{ opacity: 0, y: 20 }}

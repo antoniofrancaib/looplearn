@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -26,6 +27,7 @@ const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
   const [completedDays, setCompletedDays] = useState<Date[]>([]);
+  const [selectedDecks, setSelectedDecks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -84,7 +86,6 @@ const Dashboard = () => {
     fetchDecks();
   }, [newDeckDialogOpen]);
 
-  // Fetch user activity data
   useEffect(() => {
     const fetchUserActivity = async () => {
       const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
@@ -112,6 +113,9 @@ const Dashboard = () => {
     ...deck,
     progress: Math.floor(Math.random() * 100), // Replace with actual progress data
   }));
+
+  // Filter decks for the carousel to only show selected ones
+  const selectedDecksForCarousel = decksWithProgress.filter(deck => selectedDecks.has(deck.id));
 
   return (
     <div className="space-y-8">
@@ -143,16 +147,22 @@ const Dashboard = () => {
       </div>
 
       {/* Active Decks */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Continue Learning</h2>
-        <DeckCarousel 
-          decks={decksWithProgress} 
-          onDeckSelect={(deckId) => navigate(`/deck/${deckId}`)}
-        />
-      </div>
+      {selectedDecksForCarousel.length > 0 && (
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Continue Learning</h2>
+          <DeckCarousel 
+            decks={selectedDecksForCarousel} 
+            onDeckSelect={(deckId) => navigate(`/deck/${deckId}`)}
+          />
+        </div>
+      )}
 
       {/* All Decks Grid */}
-      <AllDecksGrid decks={decksWithProgress} />
+      <AllDecksGrid 
+        decks={decksWithProgress} 
+        selectedDecks={selectedDecks}
+        onSelectedDecksChange={setSelectedDecks}
+      />
 
       <NewDeckDialog 
         open={newDeckDialogOpen} 
