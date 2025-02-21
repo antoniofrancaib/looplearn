@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,9 +21,28 @@ import {
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/components/ui/use-toast"
 
 export function ProfileMenu({ className }: { className?: string }) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Redirect to auth page after successful logout
+      navigate('/auth');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error logging out",
+        description: error.message,
+      });
+    }
+  };
 
   return (
     <div className={cn("relative", className)} style={{ zIndex: 50 }}>
@@ -96,7 +116,10 @@ export function ProfileMenu({ className }: { className?: string }) {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="flex cursor-pointer items-center gap-2 rounded-md p-2 text-red-600 hover:text-red-600">
+          <DropdownMenuItem 
+            className="flex cursor-pointer items-center gap-2 rounded-md p-2 text-red-600 hover:text-red-600"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4" />
             <span>Log Out</span>
           </DropdownMenuItem>
