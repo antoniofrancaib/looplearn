@@ -8,8 +8,8 @@ const corsHeaders = {
 }
 
 interface GenerateCardParams {
-  interest: string;
-  count?: number;
+  interest: string
+  count: number
 }
 
 serve(async (req) => {
@@ -35,11 +35,11 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert flashcard creator for the topic: ${interest}. Create engaging and educational flashcards that help users learn about this topic.`
+            content: `You are an expert flashcard creator for the topic: ${interest}. Create engaging, fun and educational flashcards that help users learn interesting facts about this topic.`
           },
           {
             role: 'user',
-            content: `Create ${count} flashcards about ${interest}. Return them in this exact JSON format:
+            content: `Create ${count} flashcards about ${interest}. Make them fun and engaging! Return them in this exact JSON format:
             {
               "cards": [
                 {
