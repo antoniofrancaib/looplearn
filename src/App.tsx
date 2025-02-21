@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +13,7 @@ import Billing from "./pages/Billing";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
 import { RewardsProvider } from "@/contexts/RewardsContext";
+import InterestsPage from "./pages/Interests";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,7 @@ const App = () => (
               <Route path="/deck/:deckId" element={<DeckDetail />} />
               <Route path="/personal-info" element={<PersonalInfo />} />
               <Route path="/billing" element={<Billing />} />
+              <Route path="/interests" element={<InterestsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
