@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Plus, ArrowRight } from "lucide-react";
+import { Plus, ArrowRight, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NewDeckDialog } from "@/components/NewDeckDialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,8 +10,8 @@ import { motion } from "framer-motion";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
+import { useToast } from "@/components/ui/use-toast";
 import { format, addDays, subDays, parseISO } from 'date-fns';
-import { Calendar } from "@/components/ui/calendar";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Deck {
@@ -28,12 +27,38 @@ const Dashboard = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [completedDays, setCompletedDays] = useState<Date[]>([]);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Generate mock data for the next 5 days
-  const upcomingReviews = Array.from({ length: 5 }).map((_, index) => ({
-    date: format(addDays(new Date(), index), 'MMM dd'),
-    cards: Math.floor(Math.random() * 20) + 5, // Random number between 5 and 25
-  }));
+  const handleReviewToday = async () => {
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+    const { data: todayCards, error } = await supabase
+      .from('cards')
+      .select('*', { count: 'exact', head: true })
+      .gte('next_review_at', startOfDay)
+      .lt('next_review_at', endOfDay);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Could not fetch today's cards",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!todayCards || todayCards.length === 0) {
+      toast({
+        title: "No cards due",
+        description: "There are no cards to review today",
+      });
+      return;
+    }
+
+    navigate('/review', { state: { filter: 'today' } });
+  };
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -96,15 +121,24 @@ const Dashboard = () => {
         <PersonalizedFeed selectedInterests={[]} />
       </div>
 
-      {/* Create New Deck Button */}
-      <div className="flex justify-center">
+      {/* Create New Deck and Review Today Buttons */}
+      <div className="flex justify-center gap-4">
         <Button
           onClick={() => setNewDeckDialogOpen(true)}
-          className="w-full max-w-2xl bg-teal-500 hover:bg-teal-600 text-white shadow-lg hover:shadow-teal-200/50 transition-all"
+          className="w-full max-w-md bg-teal-500 hover:bg-teal-600 text-white shadow-lg hover:shadow-teal-200/50 transition-all"
           size="lg"
         >
           <Plus className="mr-2 h-5 w-5" />
           Create New Deck
+        </Button>
+        <Button
+          onClick={handleReviewToday}
+          variant="secondary"
+          className="w-full max-w-md shadow-lg hover:shadow-blue-200/50 transition-all"
+          size="lg"
+        >
+          <Calendar className="mr-2 h-5 w-5" />
+          Review Today's Cards
         </Button>
       </div>
 
