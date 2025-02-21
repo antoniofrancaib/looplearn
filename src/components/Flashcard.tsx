@@ -1,33 +1,32 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 interface FlashcardProps {
   front: string;
   back: string;
-  onDifficultySelect: (difficulty: 'forgot' | 'struggled' | 'easy') => void;
+  onNext: () => void;
 }
 
-export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) => {
+export const Flashcard = ({ front, back, onNext }: FlashcardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const handleFlip = () => {
-    setIsFlipped(!isFlipped);
-  };
-
-  const handleDifficultyClick = (difficulty: 'forgot' | 'struggled' | 'easy') => {
-    onDifficultySelect(difficulty);
-    setIsFlipped(false); // Reset to show front content
+  const handleClick = () => {
+    if (isFlipped) {
+      setIsFlipped(false);
+      onNext();
+    } else {
+      setIsFlipped(true);
+    }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
-      <div className="relative h-[200px] mb-8" style={{ perspective: "1000px" }}>
+      <div className="relative h-[200px]" style={{ perspective: "1000px" }}>
         <motion.div
           className="w-full h-full cursor-pointer absolute"
-          onClick={handleFlip}
+          onClick={handleClick}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6 }}
           style={{ 
@@ -49,30 +48,6 @@ export const Flashcard = ({ front, back, onDifficultySelect }: FlashcardProps) =
             </div>
           </Card>
         </motion.div>
-      </div>
-
-      <div className="mt-6 flex justify-center space-x-4">
-        <Button
-          variant="destructive"
-          onClick={() => handleDifficultyClick('forgot')}
-          disabled={!isFlipped}
-        >
-          Forgot (1 day)
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => handleDifficultyClick('struggled')}
-          disabled={!isFlipped}
-        >
-          Struggled (2 days)
-        </Button>
-        <Button
-          className="bg-green-600 hover:bg-green-700"
-          onClick={() => handleDifficultyClick('easy')}
-          disabled={!isFlipped}
-        >
-          Easy (5 days)
-        </Button>
       </div>
     </div>
   );

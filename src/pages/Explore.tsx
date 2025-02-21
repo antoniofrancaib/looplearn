@@ -1,7 +1,8 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, BookmarkPlus, Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 import { motion, AnimatePresence } from "framer-motion"
@@ -21,6 +22,7 @@ const Explore = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const [viewedCards, setViewedCards] = useState<Set<string>>(new Set())
+  const [currentCardIndex, setCurrentCardIndex] = useState(0)
 
   // Fetch user's interests
   const { data: interests, isLoading: loadingInterests } = useQuery({
@@ -74,7 +76,6 @@ const Explore = () => {
       
       const { data: { cards } } = response
       
-      // Insert generated cards into the database
       const { error } = await supabase
         .from('explore_cards')
         .insert(
@@ -82,12 +83,11 @@ const Explore = () => {
             interest,
             front_content: card.front,
             back_content: card.back,
-            user_id: user.id, // Important: Set the user_id
+            user_id: user.id,
           }))
         )
       if (error) throw error
       
-      // Refresh the cards list
       queryClient.invalidateQueries({ queryKey: ['explore-cards'] })
     },
     onError: (error) => {
@@ -108,7 +108,6 @@ const Explore = () => {
   // Generate initial cards if none available
   const generateInitialCards = useCallback(async () => {
     if (interests && interests.length > 0 && (!exploreCards || exploreCards.length === 0)) {
-      // Distribute 20 cards across interests
       const cardsPerInterest = Math.ceil(20 / interests.length)
       for (const interest of interests) {
         await generateMutation.mutateAsync({ interest, count: cardsPerInterest })
@@ -123,43 +122,12 @@ const Explore = () => {
     enabled: !!interests && interests.length > 0 && (!exploreCards || exploreCards.length === 0),
   })
 
-  // Save card to a deck mutation
-  const saveMutation = useMutation({
-    mutationFn: async (card: ExploreCard) => {
-      const { error } = await supabase
-        .from('explore_cards')
-        .update({ saved: true })
-        .eq('id', card.id)
-      if (error) throw error
-      
-      // Add card to user's deck
-      const { error: cardError } = await supabase
-        .from('cards')
-        .insert({
-          front_content: card.front_content,
-          back_content: card.back_content,
-          deck_id: 'default-deck-id',
-        })
-      if (cardError) throw cardError
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error saving card",
-        description: error.message,
-      })
-    },
-    onSuccess: () => {
-      toast({
-        title: "Card saved!",
-        description: "The flashcard has been added to your deck.",
-      })
-      queryClient.invalidateQueries({ queryKey: ['explore-cards'] })
-    },
-  })
-
   const handleCardView = (cardId: string) => {
     setViewedCards(prev => new Set([...prev, cardId]))
+    setCurrentCardIndex(currentIndex => {
+      const nextIndex = currentIndex + 1
+      return nextIndex >= availableCards.length ? currentIndex : nextIndex
+    })
   }
 
   const generateMoreCards = async () => {
@@ -168,6 +136,7 @@ const Explore = () => {
     // Randomly select an interest to generate cards from
     const randomInterest = interests[Math.floor(Math.random() * interests.length)]
     await generateMutation.mutateAsync({ interest: randomInterest, count: 5 })
+    setCurrentCardIndex(0) // Reset to show the first new card
   }
 
   if (loadingInterests) {
@@ -183,6 +152,8 @@ const Explore = () => {
     )
   }
 
+  const currentCard = availableCards[currentCardIndex]
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
@@ -194,40 +165,28 @@ const Explore = () => {
           <div className="flex justify-center p-8">
             <Loader2 className="animate-spin" />
           </div>
-        ) : availableCards.length > 0 ? (
-          <motion.div layout className="grid gap-6">
-            {availableCards.map((card) => (
-              <motion.div
-                key={card.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-              >
-                <Card className="overflow-hidden">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Topic: {card.interest}
-                    </CardTitle>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={card.saved || saveMutation.isPending}
-                      onClick={() => saveMutation.mutate(card)}
-                    >
-                      <BookmarkPlus className={`h-4 w-4 ${card.saved ? 'fill-current' : ''}`} />
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <Flashcard
-                      front={card.front_content}
-                      back={card.back_content}
-                      onDifficultySelect={() => handleCardView(card.id)}
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+        ) : currentCard ? (
+          <motion.div
+            key={currentCard.id}
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <Card className="overflow-hidden">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Topic: {currentCard.interest}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Flashcard
+                  front={currentCard.front_content}
+                  back={currentCard.back_content}
+                  onNext={() => handleCardView(currentCard.id)}
+                />
+              </CardContent>
+            </Card>
           </motion.div>
         ) : (
           <motion.div 
