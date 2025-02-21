@@ -21,6 +21,38 @@ interface Card {
   review_count: number;
 }
 
+const calculateNextInterval = (
+  currentInterval: number,
+  easeFactor: number,
+  difficulty: 'forgot' | 'struggled' | 'easy'
+): { newInterval: number; newEaseFactor: number } => {
+  let newEaseFactor = easeFactor;
+  let newInterval: number;
+
+  switch (difficulty) {
+    case 'forgot':
+      newInterval = 1; // Reset to 1 day
+      newEaseFactor = Math.max(1.3, easeFactor - 0.2); // Decrease ease factor but not below 1.3
+      break;
+    case 'struggled':
+      newInterval = currentInterval; // Keep the same interval
+      newEaseFactor = Math.max(1.3, easeFactor - 0.15); // Slightly decrease ease factor
+      break;
+    case 'easy':
+      newInterval = Math.ceil(currentInterval * easeFactor);
+      newEaseFactor = Math.min(2.5, easeFactor + 0.1); // Increase ease factor but not above 2.5
+      break;
+    default:
+      newInterval = currentInterval;
+  }
+
+  // Ensure minimum interval of 1 day and maximum of 365 days
+  return {
+    newInterval: Math.min(365, Math.max(1, newInterval)),
+    newEaseFactor: newEaseFactor
+  };
+};
+
 const DeckDetail = () => {
   const { deckId } = useParams();
   const navigate = useNavigate();
@@ -45,10 +77,13 @@ const DeckDetail = () => {
   const { data: cards, isLoading: isCardsLoading } = useQuery({
     queryKey: ['cards', deckId],
     queryFn: async () => {
+      const now = new Date().toISOString();
+      
       const { data, error } = await supabase
         .from('cards')
         .select('*')
         .eq('deck_id', deckId)
+        .lte('next_review_at', now) // Only fetch cards that are due for review
         .order('next_review_at');
       
       if (error) throw error;
@@ -58,21 +93,25 @@ const DeckDetail = () => {
 
   const updateCardMutation = useMutation({
     mutationFn: async ({ cardId, difficulty }: { cardId: string, difficulty: 'forgot' | 'struggled' | 'easy' }) => {
-      const intervalDays = {
-        forgot: 1,
-        struggled: 2,
-        easy: 5
-      }[difficulty];
+      const card = cards?.find(c => c.id === cardId);
+      if (!card) throw new Error('Card not found');
 
-      const nextReviewAt = addDays(new Date(), intervalDays);
+      const { newInterval, newEaseFactor } = calculateNextInterval(
+        card.interval_days || 1,
+        card.ease_factor || 2.5,
+        difficulty
+      );
+
+      const nextReviewAt = addDays(new Date(), newInterval);
 
       const { error } = await supabase
         .from('cards')
         .update({
           next_review_at: nextReviewAt.toISOString(),
-          interval_days: intervalDays,
+          interval_days: newInterval,
+          ease_factor: newEaseFactor,
           last_reviewed_at: new Date().toISOString(),
-          review_count: cards![currentCardIndex].review_count + 1
+          review_count: (card.review_count || 0) + 1
         })
         .eq('id', cardId);
 
@@ -85,10 +124,17 @@ const DeckDetail = () => {
       } else {
         toast({
           title: "Review Complete!",
-          description: "You've reviewed all cards in this deck.",
+          description: "You've reviewed all due cards in this deck.",
         });
       }
     },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error updating card",
+        description: error.message,
+      });
+    }
   });
 
   const handleDifficultySelect = (difficulty: 'forgot' | 'struggled' | 'easy') => {
@@ -110,6 +156,8 @@ const DeckDetail = () => {
     return <div>Deck not found</div>;
   }
 
+  const dueCardsCount = cards.length;
+
   return (
     <div className="space-y-8">
       <div className="flex items-center space-x-4">
@@ -122,12 +170,17 @@ const DeckDetail = () => {
       <div>
         <h1 className="text-3xl font-bold">{deck.title}</h1>
         <p className="text-muted-foreground">{deck.description}</p>
+        {dueCardsCount > 0 && (
+          <p className="text-sm text-muted-foreground mt-2">
+            {dueCardsCount} card{dueCardsCount !== 1 ? 's' : ''} due for review
+          </p>
+        )}
       </div>
 
-      {cards.length > 0 ? (
+      {dueCardsCount > 0 ? (
         <div className="space-y-4">
           <div className="text-center text-sm text-muted-foreground">
-            Card {currentCardIndex + 1} of {cards.length}
+            Card {currentCardIndex + 1} of {dueCardsCount}
           </div>
           <Flashcard
             front={cards[currentCardIndex].front_content}
@@ -136,8 +189,13 @@ const DeckDetail = () => {
           />
         </div>
       ) : (
-        <div className="text-center text-muted-foreground">
-          No cards found in this deck
+        <div className="text-center py-8 space-y-4">
+          <p className="text-muted-foreground">
+            No cards due for review! Come back later.
+          </p>
+          <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            Return to Dashboard
+          </Button>
         </div>
       )}
     </div>
