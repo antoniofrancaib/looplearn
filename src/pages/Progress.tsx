@@ -29,7 +29,7 @@ interface LearningStats {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-const Progress = () => {
+const ProgressPage = () => {
   const [stats, setStats] = useState<LearningStats>({
     totalCards: 0,
     completedReviews: 0,
@@ -193,7 +193,7 @@ const Progress = () => {
                 <span>Overall Progress</span>
                 <span>{stats.averageScore}%</span>
               </div>
-              <Progress value={stats.averageScore} className="h-2" />
+              <Progress className="h-2 [&>div]:bg-primary" style={{ transform: `translateX(-${100 - stats.averageScore}%)` }} />
             </div>
             {stats.subjects.map((subject, index) => (
               <div key={subject.name} className="space-y-2">
@@ -202,8 +202,8 @@ const Progress = () => {
                   <span>{Math.round((subject.count / stats.totalCards) * 100)}%</span>
                 </div>
                 <Progress 
-                  value={Math.round((subject.count / stats.totalCards) * 100)} 
-                  className="h-2"
+                  className="h-2 [&>div]:bg-primary" 
+                  style={{ transform: `translateX(-${100 - Math.round((subject.count / stats.totalCards) * 100)}%)` }}
                 />
               </div>
             ))}
@@ -214,4 +214,4 @@ const Progress = () => {
   );
 };
 
-export default Progress;
+export default ProgressPage;
