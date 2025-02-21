@@ -9,6 +9,9 @@ import { useRewards } from "@/contexts/RewardsContext";
 import { Progress } from "@/components/ui/progress";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { motion } from "framer-motion";
+import { Calendar } from "@/components/ui/calendar";
+import { format, addDays, subDays } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,6 +19,12 @@ const DashboardLayout = () => {
   const [timeSpent, setTimeSpent] = useState(0);
   const [topDeck, setTopDeck] = useState({ name: "French Basics", timeSpent: 45 });
   const navigate = useNavigate();
+
+  // Generate mock data for the frequency plot
+  const upcomingReviews = Array.from({ length: 5 }).map((_, index) => ({
+    date: format(addDays(new Date(), index), 'MMM dd'),
+    cards: Math.floor(Math.random() * 20) + 5,
+  }));
 
   // Simulate time tracking (in a real app, this would be actual tracking)
   useEffect(() => {
@@ -80,6 +89,51 @@ const DashboardLayout = () => {
           </p>
         </div>
       </div>
+
+      {/* Frequency Plot */}
+      <div className="p-3 rounded-lg bg-white/80 shadow-sm border border-teal-50">
+        <h3 className="text-sm font-semibold mb-2 text-gray-700">Upcoming Reviews</h3>
+        <div className="h-[150px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={upcomingReviews} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis 
+                dataKey="date" 
+                stroke="#374151"
+                fontSize={10}
+                tickSize={5}
+              />
+              <YAxis 
+                stroke="#374151"
+                fontSize={10}
+                tickSize={5}
+              />
+              <Tooltip />
+              <Bar 
+                dataKey="cards" 
+                fill="#14b8a6" 
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Don't Break the Chain Calendar */}
+      <div className="p-3 rounded-lg bg-white/80 shadow-sm border border-teal-50">
+        <h3 className="text-sm font-semibold mb-2 text-gray-700">Don't Break the Chain! 🔥</h3>
+        <Calendar
+          mode="multiple"
+          selected={[]} // You'll need to pass the actual completed days here
+          numberOfMonths={1}
+          showOutsideDays={false}
+          className="w-full"
+          classNames={{
+            day_selected: "bg-teal-500 text-white hover:bg-teal-600",
+            day: "h-8 w-8 p-0 font-normal",
+          }}
+        />
+      </div>
+
       <StatCard 
         icon={Timer} 
         label="Time Spent" 

@@ -11,9 +11,9 @@ import { motion } from "framer-motion";
 import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { Calendar } from "@/components/ui/calendar";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface Deck {
   id: string;
@@ -90,56 +90,6 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8">
-      {/* Review Schedule Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
-          <div className="h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={upcomingReviews} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                <XAxis 
-                  dataKey="date" 
-                  stroke="#374151"
-                  fontSize={12}
-                />
-                <YAxis 
-                  stroke="#374151"
-                  fontSize={12}
-                  label={{ 
-                    value: 'Cards', 
-                    angle: -90, 
-                    position: 'insideLeft',
-                    style: { fontSize: '12px' }
-                  }}
-                />
-                <Tooltip />
-                <Bar 
-                  dataKey="cards" 
-                  fill="#14b8a6" 
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="relative overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-teal-100">
-          <h3 className="text-lg font-semibold mb-4">Don't Break the Chain! 🔥</h3>
-          <Calendar
-            mode="multiple"
-            selected={completedDays}
-            numberOfMonths={1}
-            showOutsideDays={false}
-            className="w-full"
-            modifiersStyles={{
-              selected: {
-                backgroundColor: '#14b8a6',
-                color: 'white',
-              }
-            }}
-          />
-        </div>
-      </div>
-
       {/* Personalized Feed */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Your Personal Feed</h2>
