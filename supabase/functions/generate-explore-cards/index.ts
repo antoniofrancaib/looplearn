@@ -1,91 +1,71 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.2.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
   try {
-    const { interest, count, allInterests } = await req.json();
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    // Handle CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      return new Response('ok', { headers: corsHeaders })
     }
 
-    console.log(`Generating ${count} cards for interest: ${interest}`);
-    console.log('All interests:', allInterests);
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a knowledgeable tutor specializing in creating engaging flashcards. 
-            The user is interested in: ${allInterests.join(', ')}. 
-            Focus on creating interesting, fun facts and educational content that connects to their interests.`
-          },
-          {
-            role: 'user',
-            content: `Create ${count} flashcards about ${interest}. Make them engaging and fun! 
-            Try to occasionally reference related topics from their other interests: ${allInterests.join(', ')}.
-            Return them in this exact JSON format:
-            {
-              "cards": [
-                {
-                  "front": "question or concept",
-                  "back": "answer or explanation"
-                }
-              ]
-            }`
-          }
-        ],
-        temperature: 0.7
-      }),
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('OpenAI API error:', data);
-      throw new Error('Failed to generate cards: ' + JSON.stringify(data.error));
+    const { interest, count, allInterests } = await req.json()
+    const openAiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openAiKey) {
+      throw new Error('OPENAI_API_KEY is not set')
     }
 
-    let cards;
-    try {
-      cards = JSON.parse(data.choices[0].message.content).cards;
-    } catch (error) {
-      console.error('Error parsing OpenAI response:', error);
-      throw new Error('Invalid response format from OpenAI');
+    const configuration = new Configuration({ apiKey: openAiKey })
+    const openai = new OpenAIApi(configuration)
+
+    const interestsContext = allInterests?.join(', ') || interest
+
+    const prompt = `Create ${count} unique flashcards about ${interest}. Consider the user's other interests for context: ${interestsContext}.
+    Each flashcard should have a clear question or concept on the front and a concise, informative answer on the back.
+    Format as JSON array: [{"front": "front content", "back": "back content"}]`
+
+    const completion = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant that creates educational flashcards."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+    })
+
+    const responseText = completion.data.choices[0].message?.content
+    if (!responseText) {
+      throw new Error('No response from OpenAI')
     }
 
-    return new Response(JSON.stringify({ cards }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error:', error);
+    const cards = JSON.parse(responseText)
+
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'An unexpected error occurred'
-      }), 
-      { 
-        status: 400,
+      JSON.stringify({ cards }),
+      {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+        status: 200,
+      },
+    )
+  } catch (error) {
+    console.error('Error:', error)
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      },
+    )
   }
-});
+})
