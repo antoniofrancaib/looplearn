@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -26,12 +25,12 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#00B5AD",
+          DEFAULT: "#4F46E5",
           foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "#333333",
-          foreground: "#D9D9D9",
+          DEFAULT: "#0EA5E9",
+          foreground: "#ffffff",
         },
         success: {
           DEFAULT: "#10B981",
@@ -42,26 +41,19 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#1A1A3A",
-          foreground: "#D9D9D9",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "#00B5AD",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         'dashboard': {
-          primary: '#00B5AD',
-          secondary: '#1A1A3A',
-          accent: '#2D2D5F',
-          border: '#333333',
+          primary: '#0D9488', // teal-600
+          secondary: '#0EA5E9', // sky-500
+          accent: '#F0FDFA', // teal-50
+          border: '#99F6E4', // teal-200
         }
-      },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-      },
-      fontSize: {
-        'heading': '48px',
-        'body': '16px',
       },
       keyframes: {
         "card-flip": {
@@ -72,15 +64,10 @@ export default {
           "0%": { transform: "translateY(10px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
-        glow: {
-          "0%, 100%": { boxShadow: "0 0 10px #00B5AD" },
-          "50%": { boxShadow: "0 0 20px #00B5AD" },
-        }
       },
       animation: {
         "card-flip": "card-flip 0.6s ease-in-out",
         "slide-up": "slide-up 0.3s ease-out",
-        "glow": "glow 2s ease-in-out infinite",
       },
     },
   },
