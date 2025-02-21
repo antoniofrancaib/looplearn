@@ -48,9 +48,9 @@ const DashboardLayout = () => {
     fetchUserActivity();
   }, []);
 
-  // Generate last 7 days array for streak visualization
-  const last7Days = Array.from({ length: 7 }).map((_, index) => {
-    const date = subDays(startOfToday(), 6 - index);
+  // Generate last 5 days array for streak visualization
+  const last5Days = Array.from({ length: 5 }).map((_, index) => {
+    const date = subDays(startOfToday(), 4 - index);
     const isCompleted = completedDays.some(completedDate => 
       isEqual(new Date(completedDate), date)
     );
@@ -96,7 +96,7 @@ const DashboardLayout = () => {
         <p className="text-xs text-gray-500">Week Streak</p>
       </div>
       <div className="flex gap-1 justify-between">
-        {last7Days.map(({ date, isCompleted, dayLabel }) => (
+        {last5Days.map(({ date, isCompleted, dayLabel }) => (
           <div key={dayLabel} className="flex flex-col items-center gap-1">
             <div 
               className={cn(
