@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/button";
 import { BarChart2, Activity, Trophy, Users, Compass, Mic, Menu, Home, Library, Settings, Star, Timer, BookOpen } from "lucide-react";
@@ -14,6 +14,7 @@ const DashboardLayout = () => {
   const { sparks, dailyProgress } = useRewards();
   const [timeSpent, setTimeSpent] = useState(0);
   const [topDeck, setTopDeck] = useState({ name: "French Basics", timeSpent: 45 });
+  const navigate = useNavigate();
 
   // Simulate time tracking (in a real app, this would be actual tracking)
   useEffect(() => {
@@ -153,6 +154,7 @@ const DashboardLayout = () => {
                   key={item.title}
                   variant="ghost"
                   className="justify-start gap-2 w-full group hover:bg-teal-50/50"
+                  onClick={() => navigate(item.url)}
                 >
                   <item.icon className="h-4 w-4 text-teal-600 group-hover:text-teal-700" />
                   <div className="flex flex-col items-start">
