@@ -34,7 +34,6 @@ const DeckPreview = ({ deck, onSelect }: DeckPreviewProps) => {
           <Progress 
             value={deck.progress} 
             className="h-2 bg-white/20" 
-            indicatorClassName="bg-white" 
           />
           <div className="flex items-center justify-between text-sm text-teal-50">
             <div className="flex items-center gap-1">
@@ -128,4 +127,4 @@ export function DeckCarousel({ decks, onDeckSelect }: {
       </div>
     </div>
   );
-} 
+}
