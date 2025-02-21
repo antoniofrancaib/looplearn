@@ -55,6 +55,27 @@ const Explore = () => {
     },
   })
 
+  // Delete card mutation
+  const deleteCardMutation = useMutation({
+    mutationFn: async (cardId: string) => {
+      const { error } = await supabase
+        .from('explore_cards')
+        .delete()
+        .eq('id', cardId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['explore-cards'] })
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error deleting card",
+        description: error.message,
+      })
+    }
+  })
+
   // Filter out viewed cards
   const availableCards = exploreCards?.filter(card => !viewedCards.has(card.id)) || []
 
@@ -122,12 +143,17 @@ const Explore = () => {
     enabled: !!interests && interests.length > 0 && (!exploreCards || exploreCards.length === 0),
   })
 
-  const handleCardView = (cardId: string) => {
-    setViewedCards(prev => new Set([...prev, cardId]))
-    setCurrentCardIndex(currentIndex => {
-      const nextIndex = currentIndex + 1
-      return nextIndex >= availableCards.length ? currentIndex : nextIndex
-    })
+  const handleCardView = async (cardId: string) => {
+    try {
+      await deleteCardMutation.mutateAsync(cardId)
+      setViewedCards(prev => new Set([...prev, cardId]))
+      setCurrentCardIndex(currentIndex => {
+        const nextIndex = currentIndex + 1
+        return nextIndex >= availableCards.length ? currentIndex : nextIndex
+      })
+    } catch (error) {
+      console.error('Error deleting card:', error)
+    }
   }
 
   const generateMoreCards = async () => {
