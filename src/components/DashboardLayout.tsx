@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/button";
-import { Menu, BarChart2, Home, Library, Settings, Star, Timer, Trophy, BookOpen } from "lucide-react";
+import { BarChart2, Activity, Trophy, Users, Compass, Mic, Menu, Home, Library, Settings, Star, Timer, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useRewards } from "@/contexts/RewardsContext";
@@ -94,6 +94,39 @@ const DashboardLayout = () => {
     </div>
   );
 
+  const sidebarItems = [
+    {
+      title: "Progress",
+      icon: Activity,
+      description: "Track your learning journey",
+      url: "/progress"
+    },
+    {
+      title: "Challenges",
+      icon: Trophy,
+      description: "Complete tasks, earn rewards",
+      url: "/challenges"
+    },
+    {
+      title: "Friends",
+      icon: Users,
+      description: "Connect and compete",
+      url: "/friends"
+    },
+    {
+      title: "Explore",
+      icon: Compass,
+      description: "Discover trending decks",
+      url: "/explore"
+    },
+    {
+      title: "Voice Hub",
+      icon: Mic,
+      description: "Voice-powered features",
+      url: "/voice"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Mobile Header */}
@@ -115,18 +148,21 @@ const DashboardLayout = () => {
             
             {/* Navigation Links */}
             <div className="flex flex-col gap-2 p-4">
-              <Button variant="ghost" className="justify-start gap-2 w-full">
-                <Home className="h-4 w-4" /> Home
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2 w-full">
-                <Library className="h-4 w-4" /> My Decks
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2 w-full">
-                <Star className="h-4 w-4" /> Favorites
-              </Button>
-              <Button variant="ghost" className="justify-start gap-2 w-full">
-                <Settings className="h-4 w-4" /> Settings
-              </Button>
+              {sidebarItems.map((item) => (
+                <Button
+                  key={item.title}
+                  variant="ghost"
+                  className="justify-start gap-2 w-full group hover:bg-teal-50/50"
+                >
+                  <item.icon className="h-4 w-4 text-teal-600 group-hover:text-teal-700" />
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium">{item.title}</span>
+                    <span className="text-xs text-gray-500 hidden group-hover:block">
+                      {item.description}
+                    </span>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
         </div>
