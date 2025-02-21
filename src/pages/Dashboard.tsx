@@ -1,12 +1,16 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Plus, BookOpen, BarChart2, Calendar } from "lucide-react";
+import { Plus, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NewDeckDialog } from "@/components/NewDeckDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { InterestSelector, interests } from "@/components/InterestSelector";
+import { PersonalizedFeed } from "@/components/PersonalizedFeed";
+import { DeckCarousel } from "@/components/DeckCarousel";
+import { AllDecksGrid } from "@/components/AllDecksGrid";
 
 interface Deck {
   id: string;
@@ -17,9 +21,11 @@ interface Deck {
 }
 
 const Dashboard = () => {
-  const [progress] = useState(67);
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
+  const [selectedInterests, setSelectedInterests] = useState(() => 
+    interests.filter(i => i.defaultSelected).map(i => i.id)
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,84 +52,68 @@ const Dashboard = () => {
     fetchDecks();
   }, [newDeckDialogOpen]);
 
+  // Add progress to the decks data
+  const decksWithProgress = decks.map(deck => ({
+    ...deck,
+    progress: Math.floor(Math.random() * 100), // Replace with actual progress data
+  }));
+
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
-          <p className="text-muted-foreground">Track your learning progress and create new flashcards.</p>
+      {/* Welcome Section */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-teal-500 to-blue-500 p-8 text-white">
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold">Welcome back, John! 👋</h1>
+          <p className="mt-2 text-teal-50">Ready to continue your learning journey?</p>
+          <div className="mt-4 space-y-4">
+            <Button 
+              className="bg-white text-teal-600 hover:bg-teal-50"
+              onClick={() => setNewDeckDialogOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Deck
+            </Button>
+            <div className="pt-4">
+              <p className="text-sm text-teal-50 mb-2">Customize your feed:</p>
+              <InterestSelector 
+                selectedInterests={selectedInterests}
+                onInterestsChange={setSelectedInterests}
+              />
+            </div>
+          </div>
         </div>
-        <Button onClick={() => setNewDeckDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Deck
+        <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-blue-400/20 to-transparent" />
+      </div>
+
+      {/* Personalized Feed */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Your Personal Feed</h2>
+        <PersonalizedFeed selectedInterests={selectedInterests} />
+      </div>
+
+      {/* Create New Deck Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={() => setNewDeckDialogOpen(true)}
+          className="w-full max-w-2xl bg-teal-500 hover:bg-teal-600 text-white shadow-lg hover:shadow-teal-200/50 transition-all"
+          size="lg"
+        >
+          <Plus className="mr-2 h-5 w-5" />
+          Create New Deck
         </Button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cards Due Today</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">15</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Study Streak</CardTitle>
-            <BarChart2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">7 days</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cards Mastered</CardTitle>
-            <BookOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">124</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Overall Progress</CardTitle>
-            <BarChart2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{progress}%</div>
-            <Progress value={progress} className="mt-2" />
-          </CardContent>
-        </Card>
+      {/* Active Decks */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Continue Learning</h2>
+        <DeckCarousel 
+          decks={decksWithProgress} 
+          onDeckSelect={(deckId) => navigate(`/deck/${deckId}`)}
+        />
       </div>
 
-      {/* Recent Decks */}
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight">Recent Decks</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {decks.map((deck) => (
-            <Card 
-              key={deck.id} 
-              className="hover:bg-gray-50 transition-colors cursor-pointer"
-              onClick={() => navigate(`/deck/${deck.id}`)}
-            >
-              <CardHeader>
-                <CardTitle>{deck.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  {deck.card_count} cards • Created {new Date(deck.created_at!).toLocaleDateString()}
-                </div>
-                <Progress value={45} className="mt-4" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      {/* All Decks Grid */}
+      <AllDecksGrid decks={decksWithProgress} />
 
       <NewDeckDialog 
         open={newDeckDialogOpen} 

@@ -48,6 +48,12 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        'dashboard': {
+          primary: '#0D9488', // teal-600
+          secondary: '#0EA5E9', // sky-500
+          accent: '#F0FDFA', // teal-50
+          border: '#99F6E4', // teal-200
+        }
       },
       keyframes: {
         "card-flip": {

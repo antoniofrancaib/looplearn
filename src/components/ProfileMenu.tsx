@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,17 +19,18 @@ import {
   Lock
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
+import { cn } from "@/lib/utils"
 
-export function ProfileMenu() {
+export function ProfileMenu({ className }: { className?: string }) {
   const navigate = useNavigate();
 
   return (
-    <div className="relative" style={{ zIndex: 50 }}>
+    <div className={cn("relative", className)} style={{ zIndex: 50 }}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="outline" 
-            className="relative flex items-center gap-2 px-4 hover:bg-accent"
+            className="relative flex items-center gap-2 px-4 hover:bg-accent w-full"
           >
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
               <User className="h-4 w-4 text-primary" />
