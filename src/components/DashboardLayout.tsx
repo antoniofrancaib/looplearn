@@ -5,16 +5,13 @@ import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRewards } from "@/contexts/RewardsContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { supabase } from "@/integrations/supabase/client";
 import { ProfileMenu } from "./ProfileMenu";
 import { StatsList } from "./dashboard/StatsList";
 import { Sidebar } from "./dashboard/Sidebar";
 
 const DashboardLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { sparks, dailyProgress } = useRewards();
-  const [timeSpent, setTimeSpent] = useState(0);
-  const [topDeck, setTopDeck] = useState({ name: "French Basics", timeSpent: 45 });
+  const { dailyProgress } = useRewards();
   const [completedDays, setCompletedDays] = useState<Date[]>([]);
 
   // Fetch user activity data for the last 7 days
@@ -38,14 +35,6 @@ const DashboardLayout = () => {
     };
 
     fetchUserActivity();
-  }, []);
-
-  // Simulate time tracking
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeSpent(prev => prev + 1);
-    }, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -73,11 +62,8 @@ const DashboardLayout = () => {
           <div className="sticky top-0 p-4 h-screen overflow-y-auto scrollbar-hide bg-gradient-to-b from-teal-50/20 to-white/20 border-l-2 border-gradient-to-b from-teal-400/20 to-blue-400/20">
             <h3 className="text-sm font-semibold mb-4">Quick Stats</h3>
             <StatsList 
-              sparks={sparks}
               dailyProgress={dailyProgress}
               completedDays={completedDays}
-              timeSpent={timeSpent}
-              topDeck={topDeck}
             />
           </div>
         </aside>
@@ -92,11 +78,8 @@ const DashboardLayout = () => {
           <SheetContent className="w-[300px] sm:w-[400px] bg-white/95 backdrop-blur-sm">
             <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
             <StatsList 
-              sparks={sparks}
               dailyProgress={dailyProgress}
               completedDays={completedDays}
-              timeSpent={timeSpent}
-              topDeck={topDeck}
             />
           </SheetContent>
         </Sheet>
