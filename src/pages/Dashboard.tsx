@@ -12,7 +12,7 @@ import { PersonalizedFeed } from "@/components/PersonalizedFeed";
 import { DeckCarousel } from "@/components/DeckCarousel";
 import { AllDecksGrid } from "@/components/AllDecksGrid";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays, parseISO } from 'date-fns';
 import { Calendar } from "@/components/ui/calendar";
 
 interface Deck {
@@ -26,6 +26,7 @@ interface Deck {
 const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
   const [decks, setDecks] = useState<Deck[]>([]);
+  const [completedDays, setCompletedDays] = useState<Date[]>([]);
   const navigate = useNavigate();
 
   // Generate mock data for the next 5 days
@@ -33,18 +34,6 @@ const Dashboard = () => {
     date: format(addDays(new Date(), index), 'MMM dd'),
     cards: Math.floor(Math.random() * 20) + 5, // Random number between 5 and 25
   }));
-
-  // Generate mock data for the calendar - randomly mark some days as "completed"
-  const generateMockCompletedDays = () => {
-    const days: Date[] = [];
-    const today = new Date();
-    for (let i = 30; i >= 0; i--) {
-      if (Math.random() > 0.3) { // 70% chance of completing reviews on any given day
-        days.push(subDays(today, i));
-      }
-    }
-    return days;
-  };
 
   useEffect(() => {
     const fetchDecks = async () => {
@@ -70,13 +59,34 @@ const Dashboard = () => {
     fetchDecks();
   }, [newDeckDialogOpen]);
 
+  // Fetch user activity data
+  useEffect(() => {
+    const fetchUserActivity = async () => {
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+      
+      const { data, error } = await supabase
+        .from('user_daily_activity')
+        .select('activity_date')
+        .gte('activity_date', thirtyDaysAgo)
+        .order('activity_date', { ascending: true });
+
+      if (!error && data) {
+        // Convert the activity dates to Date objects
+        const activityDates = data.map(activity => new Date(activity.activity_date));
+        setCompletedDays(activityDates);
+      } else if (error) {
+        console.error('Error fetching user activity:', error);
+      }
+    };
+
+    fetchUserActivity();
+  }, []);
+
   // Add progress to the decks data
   const decksWithProgress = decks.map(deck => ({
     ...deck,
     progress: Math.floor(Math.random() * 100), // Replace with actual progress data
   }));
-
-  const completedDays = generateMockCompletedDays();
 
   return (
     <div className="space-y-8">
