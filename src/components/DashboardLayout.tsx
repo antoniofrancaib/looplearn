@@ -1,4 +1,3 @@
-
 import { Outlet } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { Button } from "@/components/ui/button";
@@ -72,8 +71,7 @@ const DashboardLayout = () => {
         <div className="space-y-2">
           <Progress 
             value={(dailyProgress.completed / dailyProgress.total) * 100} 
-            className="h-2 bg-teal-100"
-            indicatorClassName="bg-teal-500"
+            className="h-2 [&>div]:bg-teal-500 bg-teal-100"
           />
           <p className="text-sm font-medium text-teal-700">
             {dailyProgress.completed}/{dailyProgress.total} decks
