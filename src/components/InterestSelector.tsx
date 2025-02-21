@@ -5,7 +5,27 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
-export type Interest = "science" | "tech" | "history" | "art" | "sports" | "languages" | "travel" | "music";
+export type Interest = 
+  | "science" 
+  | "tech" 
+  | "history" 
+  | "art" 
+  | "sports" 
+  | "languages" 
+  | "travel" 
+  | "music"
+  | "cooking"
+  | "photography"
+  | "literature"
+  | "gaming"
+  | "nature"
+  | "business"
+  | "psychology"
+  | "philosophy"
+  | "cinema"
+  | "dance"
+  | "astronomy"
+  | "mathematics";
 
 export const interests = [
   { id: 'science' as Interest, label: 'Science', defaultSelected: true },
@@ -16,6 +36,18 @@ export const interests = [
   { id: 'languages' as Interest, label: 'Languages', defaultSelected: false },
   { id: 'travel' as Interest, label: 'Travel', defaultSelected: false },
   { id: 'music' as Interest, label: 'Music', defaultSelected: false },
+  { id: 'cooking' as Interest, label: 'Cooking', defaultSelected: false },
+  { id: 'photography' as Interest, label: 'Photography', defaultSelected: false },
+  { id: 'literature' as Interest, label: 'Literature', defaultSelected: false },
+  { id: 'gaming' as Interest, label: 'Gaming', defaultSelected: false },
+  { id: 'nature' as Interest, label: 'Nature', defaultSelected: false },
+  { id: 'business' as Interest, label: 'Business', defaultSelected: false },
+  { id: 'psychology' as Interest, label: 'Psychology', defaultSelected: false },
+  { id: 'philosophy' as Interest, label: 'Philosophy', defaultSelected: false },
+  { id: 'cinema' as Interest, label: 'Cinema', defaultSelected: false },
+  { id: 'dance' as Interest, label: 'Dance', defaultSelected: false },
+  { id: 'astronomy' as Interest, label: 'Astronomy', defaultSelected: false },
+  { id: 'mathematics' as Interest, label: 'Mathematics', defaultSelected: false },
 ] as const;
 
 export function InterestSelector({ 
