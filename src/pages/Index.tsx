@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { 
   ArrowRight, Brain, Sparkles, Clock, Library, Globe, BookOpen, 
@@ -65,11 +66,11 @@ const Index = () => {
       {/* Hero Section */}
       <div id="home" className="flex flex-col items-center justify-center px-8 pt-32 text-center">
         <h1 className="animate-fade-in bg-gradient-to-r from-primary to-secondary bg-clip-text text-6xl font-bold text-transparent sm:text-7xl">
-          Master Anything with AI
+          Learning, Reimagined.
         </h1>
         
         <p className="animate-fade-in [animation-delay:200ms] mt-6 max-w-2xl text-xl text-gray-600">
-          Transform your learning journey with AI-powered flashcards. Create personalized study decks instantly and master any subject using proven memory techniques.
+          Supercharge Your Brain with Spaced Repetition, Active Recall, Interleaving, and Science-Backed Flashcards for Unforgettable Mastery.
         </p>
         
         <Button 
