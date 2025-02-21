@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Plus, MoreVertical, Pencil, Trash } from "lucide-react";
@@ -36,13 +36,18 @@ interface Deck {
   };
 }
 
-export function AllDecksGrid({ decks }: { decks: Deck[] }) {
+export function AllDecksGrid({ decks: initialDecks }: { decks: Deck[] }) {
   const [selectedDecks, setSelectedDecks] = useState<Set<string>>(new Set());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [pendingDeckId, setPendingDeckId] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [decks, setDecks] = useState<Deck[]>(initialDecks);
   const { completeDeck } = useRewards();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setDecks(initialDecks);
+  }, [initialDecks]);
 
   const handleAddToSession = (deckId: string) => {
     setPendingDeckId(deckId);
@@ -66,25 +71,45 @@ export function AllDecksGrid({ decks }: { decks: Deck[] }) {
   };
 
   const handleEditDeck = (deckId: string) => {
-    navigate(`/deck/${deckId}`);
+    navigate(`/deck/${deckId}/edit`);
   };
 
   const handleDeleteDeck = async (deckId: string) => {
-    const { error } = await supabase
-      .from('decks')
-      .delete()
-      .eq('id', deckId);
+    try {
+      // First delete all cards in the deck
+      const { error: cardsError } = await supabase
+        .from('cards')
+        .delete()
+        .eq('deck_id', deckId);
 
-    if (error) {
-      toast.error("Failed to delete deck");
-      return;
+      if (cardsError) {
+        toast.error("Failed to delete deck's cards");
+        return;
+      }
+
+      // Then delete the deck
+      const { error: deckError } = await supabase
+        .from('decks')
+        .delete()
+        .eq('id', deckId);
+
+      if (deckError) {
+        toast.error("Failed to delete deck");
+        return;
+      }
+
+      // Update local state to remove the deleted deck
+      setDecks(prevDecks => prevDecks.filter(deck => deck.id !== deckId));
+      
+      // Remove the deck from selected decks if it was there
+      const newSelected = new Set(selectedDecks);
+      newSelected.delete(deckId);
+      setSelectedDecks(newSelected);
+      
+      toast.success("Deck deleted successfully");
+    } catch (error) {
+      toast.error("An error occurred while deleting the deck");
     }
-
-    toast.success("Deck deleted successfully");
-    // Remove the deck from selected decks if it was there
-    const newSelected = new Set(selectedDecks);
-    newSelected.delete(deckId);
-    setSelectedDecks(newSelected);
   };
 
   return (
