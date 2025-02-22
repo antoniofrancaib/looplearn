@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { LucideGoogle } from "lucide-react";
+import { LogIn } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -145,7 +145,7 @@ const Auth = () => {
               onClick={handleGoogleSignIn}
               className="w-full"
             >
-              <LucideGoogle className="mr-2" />
+              <LogIn className="mr-2 h-4 w-4" />
               Continue with Google
             </Button>
           </form>
@@ -167,3 +167,4 @@ const Auth = () => {
 };
 
 export default Auth;
+
