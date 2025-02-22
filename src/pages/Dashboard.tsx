@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -33,9 +34,13 @@ const Dashboard = () => {
   // Fetch selected decks when component mounts
   useEffect(() => {
     const fetchSelectedDecks = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
       const { data: selectedDecksData, error } = await supabase
         .from('selected_decks')
-        .select('deck_id');
+        .select('deck_id')
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Error fetching selected decks:', error);
@@ -49,6 +54,16 @@ const Dashboard = () => {
   }, []);
 
   const handleSelectedDecksChange = async (newSelected: Set<string>) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to select decks",
+      });
+      return;
+    }
+
     const oldSelected = new Set(selectedDecks);
     setSelectedDecks(newSelected);
 
@@ -60,7 +75,10 @@ const Dashboard = () => {
     for (const deckId of toAdd) {
       const { error } = await supabase
         .from('selected_decks')
-        .insert({ deck_id: deckId });
+        .insert({
+          deck_id: deckId,
+          user_id: session.user.id
+        });
 
       if (error) {
         console.error('Error adding selected deck:', error);
@@ -77,7 +95,8 @@ const Dashboard = () => {
       const { error } = await supabase
         .from('selected_decks')
         .delete()
-        .eq('deck_id', deckId);
+        .eq('deck_id', deckId)
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Error removing selected deck:', error);
