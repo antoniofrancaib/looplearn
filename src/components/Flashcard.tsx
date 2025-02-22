@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, PanInfo } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -13,8 +13,29 @@ interface FlashcardProps {
 
 export const Flashcard = ({ front, back, onNext, onDifficultySelect }: FlashcardProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const handleClick = () => {
+  const handleDragStart = (event: any, info: PanInfo) => {
+    setDragStart({ x: info.point.x, y: info.point.y });
+  };
+
+  const handleDragEnd = (event: any, info: PanInfo) => {
+    const dragDistance = Math.abs(info.point.x - dragStart.x);
+    const dragThreshold = 50; // minimum distance to trigger action
+
+    if (dragDistance > dragThreshold) {
+      if (isFlipped) {
+        // If card is flipped, swiping will go to next card
+        setIsFlipped(false);
+        onNext?.();
+      } else {
+        // If card is not flipped, swiping will flip it
+        setIsFlipped(true);
+      }
+    }
+  };
+
+  const handleTap = () => {
     if (!onDifficultySelect) {
       if (isFlipped) {
         setIsFlipped(false);
@@ -32,9 +53,13 @@ export const Flashcard = ({ front, back, onNext, onDifficultySelect }: Flashcard
       <div className="relative h-[200px]" style={{ perspective: "1000px" }}>
         <motion.div
           className="w-full h-full cursor-pointer absolute"
-          onClick={handleClick}
           animate={{ rotateY: isFlipped ? 180 : 0 }}
           transition={{ duration: 0.6 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onTap={handleTap}
           style={{ 
             transformStyle: "preserve-3d",
           }}
