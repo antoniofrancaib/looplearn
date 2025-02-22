@@ -192,6 +192,32 @@ export type Database = {
         }
         Relationships: []
       }
+      selected_decks: {
+        Row: {
+          created_at: string | null
+          deck_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deck_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deck_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_selected_decks_deck"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           amount: number

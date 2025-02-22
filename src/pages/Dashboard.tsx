@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -30,6 +29,66 @@ const Dashboard = () => {
   const [selectedDecks, setSelectedDecks] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Fetch selected decks when component mounts
+  useEffect(() => {
+    const fetchSelectedDecks = async () => {
+      const { data: selectedDecksData, error } = await supabase
+        .from('selected_decks')
+        .select('deck_id');
+
+      if (error) {
+        console.error('Error fetching selected decks:', error);
+        return;
+      }
+
+      setSelectedDecks(new Set(selectedDecksData.map(d => d.deck_id)));
+    };
+
+    fetchSelectedDecks();
+  }, []);
+
+  const handleSelectedDecksChange = async (newSelected: Set<string>) => {
+    const oldSelected = new Set(selectedDecks);
+    setSelectedDecks(newSelected);
+
+    // Find decks to add and remove
+    const toAdd = [...newSelected].filter(id => !oldSelected.has(id));
+    const toRemove = [...oldSelected].filter(id => !newSelected.has(id));
+
+    // Add new selections
+    for (const deckId of toAdd) {
+      const { error } = await supabase
+        .from('selected_decks')
+        .insert({ deck_id: deckId });
+
+      if (error) {
+        console.error('Error adding selected deck:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to save deck selection",
+        });
+      }
+    }
+
+    // Remove unselected decks
+    for (const deckId of toRemove) {
+      const { error } = await supabase
+        .from('selected_decks')
+        .delete()
+        .eq('deck_id', deckId);
+
+      if (error) {
+        console.error('Error removing selected deck:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to remove deck selection",
+        });
+      }
+    }
+  };
 
   const handleReviewToday = async () => {
     const today = new Date();
@@ -161,7 +220,7 @@ const Dashboard = () => {
       <AllDecksGrid 
         decks={decksWithProgress} 
         selectedDecks={selectedDecks}
-        onSelectedDecksChange={setSelectedDecks}
+        onSelectedDecksChange={handleSelectedDecksChange}
       />
 
       <NewDeckDialog 
