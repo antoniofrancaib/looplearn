@@ -14,6 +14,7 @@ const AuthCallback = () => {
         const { data: { session }, error } = await supabase.auth.getSession();
       
         if (error) {
+          console.error("Auth callback error:", error);
           toast({
             variant: "destructive",
             title: "Authentication error",
@@ -24,12 +25,14 @@ const AuthCallback = () => {
         }
 
         if (session) {
+          console.log("Session found, redirecting to dashboard");
           navigate("/dashboard");
         } else {
-          // If no session, redirect to auth
+          console.log("No session found, redirecting to auth");
           navigate("/auth");
         }
       } catch (error: any) {
+        console.error("Auth callback catch error:", error);
         toast({
           variant: "destructive",
           title: "Authentication error",
