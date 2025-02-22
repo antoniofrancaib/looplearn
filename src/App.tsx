@@ -17,6 +17,7 @@ import InterestsPage from "./pages/Interests";
 import Explore from "./pages/Explore";
 import DeepDivePage from "./pages/DeepDive";
 import { RewardsProvider } from "@/contexts/RewardsContext";
+import ProgressPage from "./pages/Progress";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/interests" element={<InterestsPage />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/deep-dive" element={<DeepDivePage />} />
+              <Route path="/progress" element={<ProgressPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

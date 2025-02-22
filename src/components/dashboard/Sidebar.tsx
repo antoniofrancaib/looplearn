@@ -1,90 +1,65 @@
 
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import {
+  BarChart2,
+  BookOpen,
+  Compass,
+  Glasses,
+  Home,
+  Library,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Activity, Heart, Trophy, Users, Compass, Mic, BookOpen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { ProfileMenu } from "@/components/ProfileMenu";
-
-interface SidebarItem {
-  title: string;
-  icon: typeof Activity;
-  description: string;
-  url: string;
-}
-
-const sidebarItems: SidebarItem[] = [
-  {
-    title: "Progress",
-    icon: Activity,
-    description: "Track your learning journey",
-    url: "/progress"
-  },
-  {
-    title: "Deep Dive",
-    icon: BookOpen,
-    description: "Explore academic papers",
-    url: "/deep-dive"
-  },
-  {
-    title: "Interests",
-    icon: Heart,
-    description: "Manage your learning interests",
-    url: "/interests"
-  },
-  {
-    title: "Challenges",
-    icon: Trophy,
-    description: "Complete tasks, earn rewards",
-    url: "/challenges"
-  },
-  {
-    title: "Friends",
-    icon: Users,
-    description: "Connect and compete",
-    url: "/friends"
-  },
-  {
-    title: "Explore",
-    icon: Compass,
-    description: "Discover trending decks",
-    url: "/explore"
-  },
-  {
-    title: "Voice Hub",
-    icon: Mic,
-    description: "Voice-powered features",
-    url: "/voice"
-  }
-];
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Sidebar = () => {
-  const navigate = useNavigate();
+  const location = useLocation();
+
+  const links = [
+    { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/explore", label: "Explore", icon: Compass },
+    { href: "/progress", label: "Progress", icon: BarChart2 },
+    { href: "/deep-dive", label: "Deep Dive", icon: Glasses },
+    { href: "/interests", label: "Interests", icon: BookOpen },
+    { href: "/personal-info", label: "Settings", icon: Settings },
+  ];
 
   return (
-    <div className="hidden md:flex w-[15%] min-w-[200px] border-r border-r-teal-100/20 bg-white">
-      <div className="flex flex-col w-full">
-        <div className="p-4 border-b border-r-teal-100/20">
-          <ProfileMenu className="w-full" />
-        </div>
-        
-        <div className="flex flex-col gap-2 p-4">
-          {sidebarItems.map((item) => (
-            <Button
-              key={item.title}
-              variant="ghost"
-              className="justify-start gap-2 w-full group hover:bg-teal-50/50"
-              onClick={() => navigate(item.url)}
-            >
-              <item.icon className="h-4 w-4 text-teal-600 group-hover:text-teal-700" />
-              <div className="flex flex-col items-start">
-                <span className="text-sm font-medium">{item.title}</span>
-                <span className="text-xs text-gray-500 hidden group-hover:block">
-                  {item.description}
-                </span>
-              </div>
-            </Button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
+      <Link to="/dashboard" className="py-4">
+        <Library className="h-6 w-6 text-teal-600" />
+      </Link>
+      <nav className="flex-1 space-y-2 p-2">
+        {links.map(({ href, label, icon: Icon }) => (
+          <Tooltip key={href} delayDuration={0}>
+            <TooltipTrigger asChild>
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-10 w-10",
+                  location.pathname === href &&
+                    "bg-teal-100/50 text-teal-600 hover:bg-teal-100/75 hover:text-teal-600"
+                )}
+              >
+                <Link to={href}>
+                  <Icon className="h-5 w-5" />
+                  <span className="sr-only">{label}</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="border-0">
+              {label}
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </nav>
+    </aside>
   );
 };
