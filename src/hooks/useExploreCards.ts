@@ -11,6 +11,7 @@ export interface ExploreCard {
   front_content: string
   back_content: string
   saved: boolean
+  viewed_at: string | null
 }
 
 export const useExploreCards = () => {
@@ -59,7 +60,6 @@ export const useExploreCards = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      // Instead of deleting, mark as viewed
       const { error } = await supabase
         .from('explore_cards')
         .update({ viewed_at: new Date().toISOString() })

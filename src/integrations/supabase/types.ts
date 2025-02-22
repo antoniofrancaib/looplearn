@@ -100,6 +100,7 @@ export type Database = {
           interest: string
           saved: boolean | null
           user_id: string
+          viewed_at: string | null
         }
         Insert: {
           back_content: string
@@ -109,6 +110,7 @@ export type Database = {
           interest: string
           saved?: boolean | null
           user_id: string
+          viewed_at?: string | null
         }
         Update: {
           back_content?: string
@@ -118,6 +120,7 @@ export type Database = {
           interest?: string
           saved?: boolean | null
           user_id?: string
+          viewed_at?: string | null
         }
         Relationships: []
       }
