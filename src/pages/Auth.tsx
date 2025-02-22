@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { LucideGoogle } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -66,7 +67,7 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
           redirectTo: window.location.origin,
         },
@@ -144,6 +145,7 @@ const Auth = () => {
               onClick={handleGoogleSignIn}
               className="w-full"
             >
+              <LucideGoogle className="mr-2" />
               Continue with Google
             </Button>
           </form>
