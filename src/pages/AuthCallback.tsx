@@ -10,19 +10,33 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      const { error } = await supabase.auth.getSession();
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
       
-      if (error) {
+        if (error) {
+          toast({
+            variant: "destructive",
+            title: "Authentication error",
+            description: error.message,
+          });
+          navigate("/auth");
+          return;
+        }
+
+        if (session) {
+          navigate("/dashboard");
+        } else {
+          // If no session, redirect to auth
+          navigate("/auth");
+        }
+      } catch (error: any) {
         toast({
           variant: "destructive",
           title: "Authentication error",
           description: error.message,
         });
         navigate("/auth");
-        return;
       }
-
-      navigate("/dashboard");
     };
 
     handleAuthCallback();

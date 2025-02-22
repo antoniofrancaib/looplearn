@@ -24,16 +24,22 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if we're on the callback route
-    const hash = window.location.hash;
-    if (hash && hash.includes("access_token")) {
-      // Handle the callback
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          navigate("/dashboard");
-        }
-      });
-    }
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    
+    checkSession();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
