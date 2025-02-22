@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Activity, Heart, Trophy, Users, Compass, Mic } from "lucide-react";
+import { Activity, Heart, Trophy, Users, Compass, Mic, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProfileMenu } from "@/components/ProfileMenu";
 
@@ -17,6 +17,12 @@ const sidebarItems: SidebarItem[] = [
     icon: Activity,
     description: "Track your learning journey",
     url: "/progress"
+  },
+  {
+    title: "Deep Dive",
+    icon: BookOpen,
+    description: "Explore academic papers",
+    url: "/deep-dive"
   },
   {
     title: "Interests",
