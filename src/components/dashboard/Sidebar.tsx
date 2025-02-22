@@ -7,7 +7,6 @@ import {
   Compass,
   Glasses,
   Home,
-  Library,
   Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,9 +30,6 @@ export const Sidebar = () => {
 
   return (
     <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
-      <Link to="/dashboard" className="py-4">
-        <Library className="h-6 w-6 text-teal-600" />
-      </Link>
       <nav className="flex-1 space-y-2 p-2">
         {links.map(({ href, label, icon: Icon }) => (
           <Tooltip key={href} delayDuration={0}>
