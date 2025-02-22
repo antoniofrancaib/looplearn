@@ -204,10 +204,10 @@ const Dashboard = () => {
       </div>
 
       {/* Create New Deck and Review Today Buttons */}
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-col md:flex-row gap-4">
         <Button
           onClick={() => setNewDeckDialogOpen(true)}
-          className="w-full max-w-md bg-teal-500 hover:bg-teal-600 text-white shadow-lg hover:shadow-teal-200/50 transition-all"
+          className="w-full md:max-w-md bg-teal-500 hover:bg-teal-600 text-white shadow-lg hover:shadow-teal-200/50 transition-all"
           size="lg"
         >
           <Plus className="mr-2 h-5 w-5" />
@@ -216,7 +216,7 @@ const Dashboard = () => {
         <Button
           onClick={handleReviewToday}
           variant="secondary"
-          className="w-full max-w-md shadow-lg hover:shadow-blue-200/50 transition-all"
+          className="w-full md:max-w-md shadow-lg hover:shadow-blue-200/50 transition-all"
           size="lg"
         >
           <Calendar className="mr-2 h-5 w-5" />
