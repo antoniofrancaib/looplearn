@@ -29,8 +29,31 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center justify-center border-r bg-white/50 backdrop-blur-sm">
-      <nav className="space-y-2">
+    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
+      <div className="flex-1" />
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="mb-8 h-10 w-10 rounded-full p-0 overflow-hidden"
+          >
+            <Link to="/dashboard">
+              <img
+                src="/favicon.png"
+                alt="Dashboard"
+                className="h-full w-full object-cover"
+              />
+              <span className="sr-only">Go to Dashboard</span>
+            </Link>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="border-0">
+          Dashboard
+        </TooltipContent>
+      </Tooltip>
+      <nav className="space-y-2 mb-8">
         {links.map(({ href, label, icon: Icon }) => (
           <Tooltip key={href} delayDuration={0}>
             <TooltipTrigger asChild>
@@ -56,6 +79,7 @@ export const Sidebar = () => {
           </Tooltip>
         ))}
       </nav>
+      <div className="flex-1" />
     </aside>
   );
 };
