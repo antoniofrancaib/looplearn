@@ -2,6 +2,7 @@
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Flashcard } from "@/components/Flashcard"
+import { ExploreChat } from "./ExploreChat"
 import type { ExploreCard } from "@/hooks/useExploreCards"
 
 interface ExploreCardViewProps {
@@ -32,7 +33,8 @@ export const ExploreCardView = ({ card, onNext }: ExploreCardViewProps) => {
           />
         </CardContent>
       </Card>
+
+      <ExploreChat card={card} />
     </motion.div>
   )
 }
-
