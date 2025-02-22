@@ -6,6 +6,7 @@ import { AllDecksGrid } from "@/components/AllDecksGrid";
 import { DashboardActions } from "@/components/dashboard/DashboardActions";
 import { ActiveDecks } from "@/components/dashboard/ActiveDecks";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { DeepDive } from "@/components/dashboard/DeepDive";
 
 const Dashboard = () => {
   const [newDeckDialogOpen, setNewDeckDialogOpen] = useState(false);
@@ -25,6 +26,12 @@ const Dashboard = () => {
 
       {/* Create New Deck and Review Today Buttons */}
       <DashboardActions onNewDeckClick={() => setNewDeckDialogOpen(true)} />
+
+      {/* Deep Dive Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Deep Dive</h2>
+        <DeepDive />
+      </div>
 
       {/* Active Decks */}
       <ActiveDecks 
