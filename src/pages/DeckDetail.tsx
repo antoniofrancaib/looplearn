@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Flashcard } from "@/components/Flashcard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -60,7 +60,7 @@ const DeckDetail = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: deck, isLoading: isDeckLoading } = useQuery({
+  const { data: deck, isLoading: isDeckLoading, error: deckError } = useQuery({
     queryKey: ['deck', deckId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -74,7 +74,7 @@ const DeckDetail = () => {
     },
   });
 
-  const { data: cards, isLoading: isCardsLoading } = useQuery({
+  const { data: cards, isLoading: isCardsLoading, error: cardsError } = useQuery({
     queryKey: ['cards', deckId],
     queryFn: async () => {
       const now = new Date().toISOString();
@@ -83,13 +83,18 @@ const DeckDetail = () => {
         .from('cards')
         .select('*')
         .eq('deck_id', deckId)
-        .lte('next_review_at', now) // Only fetch cards that are due for review
+        .lte('next_review_at', now)
         .order('next_review_at');
       
       if (error) throw error;
       return data as Card[];
     },
   });
+
+  // Reset currentCardIndex when cards data changes
+  useEffect(() => {
+    setCurrentCardIndex(0);
+  }, [cards]);
 
   const updateCardMutation = useMutation({
     mutationFn: async ({ cardId, difficulty }: { cardId: string, difficulty: 'forgot' | 'struggled' | 'easy' }) => {
@@ -102,7 +107,6 @@ const DeckDetail = () => {
         difficulty
       );
 
-      // Calculate next review date based on the interval
       const nextReviewAt = addDays(new Date(), newInterval).toISOString();
 
       const { error } = await supabase
@@ -118,7 +122,6 @@ const DeckDetail = () => {
 
       if (error) throw error;
 
-      // Return the updated card data to use in the cache update
       return {
         cardId,
         nextReviewAt,
@@ -127,7 +130,6 @@ const DeckDetail = () => {
       };
     },
     onSuccess: (updatedCard) => {
-      // Update the cards query data to remove the reviewed card
       queryClient.setQueryData(['cards', deckId], (oldData: Card[] | undefined) => {
         if (!oldData) return [];
         return oldData.filter(card => card.id !== updatedCard.cardId);
@@ -152,11 +154,22 @@ const DeckDetail = () => {
   });
 
   const handleDifficultySelect = (difficulty: 'forgot' | 'struggled' | 'easy') => {
-    if (!cards) return;
+    if (!cards || !cards.length) return;
     const currentCard = cards[currentCardIndex];
+    if (!currentCard) return;
     updateCardMutation.mutate({ cardId: currentCard.id, difficulty });
   };
 
+  // Error states
+  if (deckError || cardsError) {
+    return (
+      <div className="p-4 text-red-500">
+        {deckError ? "Error loading deck" : "Error loading cards"}
+      </div>
+    );
+  }
+
+  // Loading states
   if (isDeckLoading || isCardsLoading) {
     return (
       <div className="space-y-4">
@@ -166,11 +179,13 @@ const DeckDetail = () => {
     );
   }
 
-  if (!deck || !cards) {
-    return <div>Deck not found</div>;
+  if (!deck) {
+    return <div className="p-4">Deck not found</div>;
   }
 
-  const dueCardsCount = cards.length;
+  // Ensure cards is an array even if empty
+  const safeCards = cards || [];
+  const dueCardsCount = safeCards.length;
 
   return (
     <div className="space-y-8">
@@ -196,11 +211,13 @@ const DeckDetail = () => {
           <div className="text-center text-sm text-muted-foreground">
             Card {currentCardIndex + 1} of {dueCardsCount}
           </div>
-          <Flashcard
-            front={cards[currentCardIndex].front_content}
-            back={cards[currentCardIndex].back_content}
-            onDifficultySelect={handleDifficultySelect}
-          />
+          {currentCardIndex < safeCards.length && (
+            <Flashcard
+              front={safeCards[currentCardIndex].front_content}
+              back={safeCards[currentCardIndex].back_content}
+              onDifficultySelect={handleDifficultySelect}
+            />
+          )}
         </div>
       ) : (
         <div className="text-center py-8 space-y-4">
