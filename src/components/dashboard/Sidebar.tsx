@@ -29,8 +29,8 @@ export const Sidebar = () => {
   ];
 
   return (
-    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
-      <nav className="flex-1 space-y-2 p-2">
+    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center justify-center border-r bg-white/50 backdrop-blur-sm">
+      <nav className="space-y-2">
         {links.map(({ href, label, icon: Icon }) => (
           <Tooltip key={href} delayDuration={0}>
             <TooltipTrigger asChild>
