@@ -1,8 +1,10 @@
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { BarChart2, BookOpen, Compass, Glasses, Home, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 export const Sidebar = () => {
   const location = useLocation();
   const links = [{
@@ -30,12 +32,13 @@ export const Sidebar = () => {
     label: "Settings",
     icon: Settings
   }];
+
   return <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button asChild variant="ghost" size="icon" className="mt-4 h-10 w-10 rounded-full p-1.5 overflow-hidden">
+          <Button asChild variant="ghost" size="icon" className="mt-4 h-10 w-10 rounded-full p-0">
             <Link to="/dashboard">
-              <img src="/favicon.png" alt="Dashboard" className="h-5 w-5 object-fill" />
+              <img src="/favicon.png" alt="Dashboard" className="h-5 w-5" />
               <span className="sr-only">Go to Dashboard</span>
             </Link>
           </Button>
