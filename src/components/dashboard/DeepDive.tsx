@@ -6,29 +6,30 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Interest } from "@/types/interests";
 
-interface Paper {
+interface AcademicPaper {
   id: string;
   title: string;
   authors: string[];
   abstract: string;
   discussion: string;
-  interests: Interest[];
+  interests: string[];
   publication_date: string;
+  created_at: string;
 }
 
 export function DeepDive({ userInterests }: { userInterests: Interest[] }) {
-  const { data: paper, isLoading } = useQuery({
+  const { data: paper, isLoading } = useQuery<AcademicPaper | null>({
     queryKey: ['academic-paper', userInterests],
     queryFn: async () => {
-      // Get a random paper that matches any of the user's interests
       const { data, error } = await supabase
         .from('academic_papers')
-        .select('*')
-        .contains('interests', userInterests)
-        .limit(1);
+        .select()
+        .overlaps('interests', userInterests)
+        .limit(1)
+        .maybeSingle();
       
       if (error) throw error;
-      return data?.[0] as Paper;
+      return data;
     }
   });
 
