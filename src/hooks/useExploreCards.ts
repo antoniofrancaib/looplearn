@@ -1,6 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { useState, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { Interest } from "@/types/interests"
 import { useToast } from "@/components/ui/use-toast"
@@ -16,7 +16,6 @@ export interface ExploreCard {
 export const useExploreCards = () => {
   const { toast } = useToast()
   const queryClient = useQueryClient()
-  const [viewedCards, setViewedCards] = useState<Set<string>>(new Set())
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
 
   // Fetch user's interests
@@ -34,17 +33,21 @@ export const useExploreCards = () => {
     },
   })
 
-  // Fetch explore cards
+  // Fetch unviewed explore cards
   const { data: exploreCards, isLoading: loadingCards } = useQuery({
     queryKey: ['explore-cards'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
+      // Get currently active cards that haven't been viewed
       const { data, error } = await supabase
         .from('explore_cards')
         .select('*')
+        .eq('user_id', user.id)
+        .is('viewed_at', null)
         .order('created_at', { ascending: false })
+      
       if (error) throw error
       return data as ExploreCard[]
     },
@@ -53,10 +56,16 @@ export const useExploreCards = () => {
   // Delete card mutation
   const deleteCardMutation = useMutation({
     mutationFn: async (cardId: string) => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      // Instead of deleting, mark as viewed
       const { error } = await supabase
         .from('explore_cards')
-        .delete()
+        .update({ viewed_at: new Date().toISOString() })
         .eq('id', cardId)
+        .eq('user_id', user.id)
+
       if (error) throw error
     },
     onSuccess: () => {
@@ -65,7 +74,7 @@ export const useExploreCards = () => {
     onError: (error) => {
       toast({
         variant: "destructive",
-        title: "Error deleting card",
+        title: "Error updating card",
         description: error.message,
       })
     }
@@ -77,15 +86,17 @@ export const useExploreCards = () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
       
-      // Check total card count before generating
+      // Get total unviewed cards count
       const { count: totalCards, error: countError } = await supabase
         .from('explore_cards')
         .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .is('viewed_at', null)
       
       if (countError) throw countError
       
       if (totalCards >= 100) {
-        throw new Error('Maximum card limit reached (100 cards)')
+        throw new Error('Maximum card limit reached (100 unviewed cards)')
       }
       
       // Adjust count if it would exceed the limit
@@ -93,7 +104,7 @@ export const useExploreCards = () => {
       const adjustedCount = Math.min(count, remainingSlots)
       
       if (adjustedCount <= 0) {
-        throw new Error('Maximum card limit reached (100 cards)')
+        throw new Error('Maximum card limit reached (100 unviewed cards)')
       }
 
       const response = await supabase.functions.invoke('generate-explore-cards', {
@@ -116,6 +127,7 @@ export const useExploreCards = () => {
             front_content: card.front,
             back_content: card.back,
             user_id: user.id,
+            viewed_at: null
           }))
         )
       if (error) throw error
@@ -137,28 +149,38 @@ export const useExploreCards = () => {
     },
   })
 
-  // Filter out viewed cards
-  const availableCards = exploreCards?.filter(card => !viewedCards.has(card.id)) || []
-
   const generateInitialCards = useCallback(async () => {
-    if (interests && interests.length > 0 && (!exploreCards || exploreCards.length === 0)) {
+    if (!interests?.length) return;
+    
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return;
+    
+    // Check if we already have unviewed cards
+    const { count } = await supabase
+      .from('explore_cards')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .is('viewed_at', null)
+    
+    // Only generate new cards if we have none
+    if (count === 0) {
       const cardsPerInterest = Math.ceil(20 / interests.length)
       for (const interest of interests) {
         await generateMutation.mutateAsync({ interest, count: cardsPerInterest })
       }
     }
-  }, [interests, exploreCards, generateMutation])
+    return true;
+  }, [interests, generateMutation])
 
   const handleCardView = async (cardId: string) => {
     try {
       await deleteCardMutation.mutateAsync(cardId)
-      setViewedCards(prev => new Set([...prev, cardId]))
       setCurrentCardIndex(currentIndex => {
         const nextIndex = currentIndex + 1
-        return nextIndex >= availableCards.length ? currentIndex : nextIndex
+        return nextIndex >= (exploreCards?.length || 0) ? currentIndex : nextIndex
       })
     } catch (error) {
-      console.error('Error deleting card:', error)
+      console.error('Error updating card:', error)
     }
   }
 
@@ -174,8 +196,7 @@ export const useExploreCards = () => {
     interests,
     loadingInterests,
     loadingCards,
-    currentCard: availableCards[currentCardIndex],
-    availableCards,
+    currentCard: exploreCards?.[currentCardIndex],
     handleCardView,
     generateMoreCards,
     generateInitialCards,
