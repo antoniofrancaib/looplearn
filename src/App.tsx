@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/DashboardLayout";
 import InterestsPage from "./pages/Interests";
 import Explore from "./pages/Explore";
+import DeepDivePage from "./pages/DeepDive";
 import { RewardsProvider } from "@/contexts/RewardsContext";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/billing" element={<Billing />} />
               <Route path="/interests" element={<InterestsPage />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/deep-dive" element={<DeepDivePage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
