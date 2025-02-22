@@ -1,10 +1,8 @@
-
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { BarChart2, BookOpen, Compass, Glasses, Home, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
 export const Sidebar = () => {
   const location = useLocation();
   const links = [{
@@ -32,14 +30,12 @@ export const Sidebar = () => {
     label: "Settings",
     icon: Settings
   }];
-
-  return (
-    <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
+  return <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <Button asChild variant="ghost" size="icon" className="mt-4 h-10 w-10 rounded-full p-1.5 overflow-hidden">
             <Link to="/dashboard">
-              <img src="/favicon.png" alt="Dashboard" className="h-5 w-5 object-contain" />
+              <img src="/favicon.png" alt="Dashboard" className="h-5 w-5 object-fill" />
               <span className="sr-only">Go to Dashboard</span>
             </Link>
           </Button>
@@ -51,10 +47,10 @@ export const Sidebar = () => {
 
       <nav className="space-y-2 mt-4">
         {links.map(({
-          href,
-          label,
-          icon: Icon
-        }) => <Tooltip key={href} delayDuration={0}>
+        href,
+        label,
+        icon: Icon
+      }) => <Tooltip key={href} delayDuration={0}>
           <TooltipTrigger asChild>
             <Button asChild variant="ghost" size="icon" className={cn("h-10 w-10", location.pathname === href && "bg-teal-100/50 text-teal-600 hover:bg-teal-100/75 hover:text-teal-600")}>
               <Link to={href}>
@@ -68,6 +64,5 @@ export const Sidebar = () => {
           </TooltipContent>
         </Tooltip>)}
       </nav>
-    </aside>
-  );
+    </aside>;
 };
