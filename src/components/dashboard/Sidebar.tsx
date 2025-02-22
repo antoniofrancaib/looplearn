@@ -37,9 +37,9 @@ export const Sidebar = () => {
     <aside className="hidden md:flex h-screen w-[70px] flex-col items-center border-r bg-white/50 backdrop-blur-sm">
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
-          <Button asChild variant="ghost" size="icon" className="mt-4 h-10 w-10 rounded-full p-0 overflow-hidden">
+          <Button asChild variant="ghost" size="icon" className="mt-4 h-10 w-10 rounded-full p-1.5 overflow-hidden">
             <Link to="/dashboard">
-              <img src="/favicon.png" alt="Dashboard" className="h-full w-full object-fill" />
+              <img src="/favicon.png" alt="Dashboard" className="h-5 w-5 object-contain" />
               <span className="sr-only">Go to Dashboard</span>
             </Link>
           </Button>
