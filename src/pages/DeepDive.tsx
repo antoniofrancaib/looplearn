@@ -29,19 +29,32 @@ const DeepDivePage = () => {
   const { toast } = useToast();
 
   const loadUserInterests = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      navigate('/auth');
-      return;
-    }
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
 
-    const { data: userInterestsData } = await supabase
-      .from('user_interests')
-      .select('interest')
-      .eq('user_id', user.id);
+      const { data: userInterestsData, error: interestsError } = await supabase
+        .from('user_interests')
+        .select('interest')
+        .eq('user_id', user.id);
 
-    if (userInterestsData) {
-      setUserInterests(userInterestsData.map(row => row.interest as Interest));
+      if (interestsError) {
+        throw interestsError;
+      }
+
+      if (userInterestsData) {
+        setUserInterests(userInterestsData.map(row => row.interest as Interest));
+      }
+    } catch (error) {
+      console.error('Error loading user interests:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load your interests. Please try again."
+      });
     }
   };
 
@@ -54,27 +67,23 @@ const DeepDivePage = () => {
           title: "No interests selected",
           description: "Please select some interests in your profile to get personalized paper recommendations."
         });
+        setLoading(false);
         return;
       }
 
-      const response = await fetch(
-        'https://uekkdcsjyhfmcubgirtd.supabase.co/functions/v1/deep-dive-papers',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({ userInterests }),
-        }
-      );
+      const { data, error: functionError } = await supabase.functions.invoke('deep-dive-papers', {
+        body: { userInterests }
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch paper');
+      if (functionError) {
+        throw new Error(functionError.message);
       }
 
-      const paper = await response.json();
-      setPaper(paper);
+      if (!data) {
+        throw new Error('No paper data received');
+      }
+
+      setPaper(data);
     } catch (error) {
       console.error('Error fetching paper:', error);
       toast({
@@ -82,6 +91,7 @@ const DeepDivePage = () => {
         title: "Error",
         description: "Failed to fetch paper. Please try again later."
       });
+      setPaper(null);
     } finally {
       setLoading(false);
     }
@@ -94,6 +104,8 @@ const DeepDivePage = () => {
   useEffect(() => {
     if (userInterests.length > 0) {
       fetchLatestPaper();
+    } else {
+      setLoading(false);
     }
   }, [userInterests]);
 
