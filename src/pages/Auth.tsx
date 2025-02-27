@@ -34,6 +34,7 @@ const Auth = () => {
     checkSession();
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
       if (event === "SIGNED_IN" && session) {
         navigate("/dashboard");
       }
@@ -84,10 +85,15 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     try {
       console.log("Starting Google sign in from:", window.location.origin);
+      
+      // Use an absolute URL for the redirectTo parameter
       const redirectUrl = `${window.location.origin}/auth/callback`;
       console.log("Using redirect URL:", redirectUrl);
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      // Store the origin in localStorage to help debug redirect issues
+      localStorage.setItem('auth_origin', window.location.origin);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
@@ -102,6 +108,8 @@ const Auth = () => {
         console.error("Google sign in error:", error);
         throw error;
       }
+      
+      console.log("OAuth sign in initiated, redirect URL:", data?.url);
     } catch (error: any) {
       console.error("Google sign in caught error:", error);
       toast({
